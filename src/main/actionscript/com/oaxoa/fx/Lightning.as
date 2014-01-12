@@ -75,6 +75,8 @@ package com.oaxoa.fx {
 
         public var childrenDetachedEnd:Boolean;
 
+        public var thicknessFadeType:String;
+
         //----------------------------------
         //  Internal Properties
         //----------------------------------
@@ -88,8 +90,6 @@ package com.oaxoa.fx {
         internal var parentInstance:Lightning;
 
         internal var absolutePosition:Number = 1;
-
-        internal var thicknessFadeType:String;
 
         internal var childrenArray:Vector.<Lightning> = new Vector.<Lightning>();
 
