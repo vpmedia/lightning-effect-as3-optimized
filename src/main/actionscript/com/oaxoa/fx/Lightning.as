@@ -36,7 +36,7 @@ package com.oaxoa.fx {
      *
      * @author        Pierluigi Pesenti (blog.oaxoa.com)
      * @contributor   Andras Csizmadia (www.vpmedia.eu)
-     * @version        0.6
+     * @version        0.6.0
      *
      */
     public class Lightning extends Sprite {

@@ -27,6 +27,7 @@ import com.bit101.components.ComboBox;
 import com.bit101.components.Slider;
 import com.oaxoa.fx.Lightning;
 import com.oaxoa.fx.LightningFadeType;
+import com.oaxoa.fx.LightningType;
 
 import flash.display.BlendMode;
 import flash.display.MovieClip;
@@ -273,134 +274,51 @@ public final class Main extends Sprite {
     private function setPreset(n:uint):void {
         trace(this, "setPreset", n);
         switch (n) {
-            // fast discharge
             case 1:
-                ll.childrenLifeSpanMin = 1;
-                ll.childrenLifeSpanMax = 3;
-                ll.childrenProbability = 1;
-                ll.childrenMaxGenerations = 3;
-                ll.childrenMaxCount = 4;
-                ll.childrenAngleVariation = 110;
-                ll.thickness = 2;
-                ll.steps = 100;
-
-                ll.smoothPercentage = 50;
-                ll.wavelength = .3;
-                ll.amplitude = .5;
-                ll.speed = .7;
-                ll.maxLength = 0;
-                ll.maxLengthVary = 0;
-
-                ll.childrenDetachedEnd = false;
+                // fast discharge
+                LightningType.setType(ll, LightningType.DISCHARGE);
                 cb1.selectedIndex = 0;
-                ll.alphaFadeType = LightningFadeType.GENERATION;
                 cb2.selectedIndex = 1;
-                ll.thicknessFadeType = LightningFadeType.NONE;
                 cb3.selectedIndex = 0;
-
                 break;
-            // fast discharge (with max length+variation)
             case 2:
-                ll.childrenLifeSpanMin = 1;
-                ll.childrenLifeSpanMax = 3;
-                ll.childrenProbability = 1;
-                ll.childrenMaxGenerations = 3;
-                ll.childrenMaxCount = 4;
-                ll.childrenAngleVariation = 110;
-                ll.thickness = 2;
-                ll.steps = 100;
-
-                ll.smoothPercentage = 50;
-                ll.wavelength = .3;
-                ll.amplitude = .5;
-                ll.speed = .7;
+                // fast discharge (with max length+variation)
+                LightningType.setType(ll, LightningType.DISCHARGE);
                 ll.maxLength = 440;
                 ll.maxLengthVary = 75;
-
-                ll.childrenDetachedEnd = false;
                 cb1.selectedIndex = 0;
-                ll.alphaFadeType = LightningFadeType.GENERATION;
                 cb2.selectedIndex = 1;
-                ll.thicknessFadeType = LightningFadeType.NONE;
                 cb3.selectedIndex = 0;
 
                 break;
-            // fast discharge slowmo
             case 3:
-                ll.childrenLifeSpanMin = 1;
-                ll.childrenLifeSpanMax = 3;
-                ll.childrenProbability = 1;
-                ll.childrenMaxGenerations = 3;
-                ll.childrenMaxCount = 4;
-                ll.childrenAngleVariation = 110;
-                ll.thickness = 2;
-                ll.steps = 100;
-
-                ll.smoothPercentage = 50;
-                ll.wavelength = .3;
-                ll.amplitude = .5;
+                // fast discharge slow motion
+                LightningType.setType(ll, LightningType.DISCHARGE);
                 ll.speed = .1;
-                ll.maxLength = 0;
-                ll.maxLengthVary = 0;
-
-                ll.childrenDetachedEnd = false;
                 cb1.selectedIndex = 0;
-                ll.alphaFadeType = LightningFadeType.GENERATION;
                 cb2.selectedIndex = 1;
-                ll.thicknessFadeType = LightningFadeType.NONE;
                 cb3.selectedIndex = 0;
 
                 break;
-            // moving thumnder
             case 4:
-                ll.childrenLifeSpanMin = .1;
-                ll.childrenLifeSpanMax = 2;
-                ll.childrenProbability = 1;
-                ll.childrenMaxGenerations = 3;
-                ll.childrenMaxCount = 4;
-                ll.childrenAngleVariation = 130;
-                ll.thickness = 3;
-                ll.steps = 100;
-
-                ll.smoothPercentage = 50;
-                ll.wavelength = .3;
-                ll.amplitude = .5;
-                ll.speed = 1;
-                ll.maxLength = 0;
-                ll.maxLengthVary = 0;
-
-                ll.childrenDetachedEnd = true;
+                // moving thunder
+                LightningType.setType(ll, LightningType.LIGHTNING);
                 cb1.selectedIndex = 1;
-                ll.alphaFadeType = LightningFadeType.TIP_TO_END;
                 cb2.selectedIndex = 2;
-                ll.thicknessFadeType = LightningFadeType.GENERATION;
                 cb3.selectedIndex = 1;
 
                 break;
             case 5:
-                ll.childrenLifeSpanMin = .1;
-                ll.childrenLifeSpanMax = 2;
-                ll.childrenProbability = 1;
-                ll.childrenMaxGenerations = 3;
-                ll.childrenMaxCount = 4;
-                ll.childrenAngleVariation = 130;
-                ll.thickness = 3;
-                ll.steps = 100;
-
-                ll.smoothPercentage = 50;
-                ll.wavelength = .3;
-                ll.amplitude = .5;
-                ll.speed = 1;
+                // moving thunder (with max length+variation)
+                LightningType.setType(ll, LightningType.LIGHTNING);
                 ll.maxLength = 440;
                 ll.maxLengthVary = 75;
-
                 ll.childrenDetachedEnd = true;
-                cb1.selectedIndex = 1;
                 ll.alphaFadeType = LightningFadeType.TIP_TO_END;
-                cb2.selectedIndex = 2;
                 ll.thicknessFadeType = LightningFadeType.GENERATION;
+                cb1.selectedIndex = 1;
+                cb2.selectedIndex = 2;
                 cb3.selectedIndex = 1;
-
                 break;
         }
         ll.disposeAllChildren();
