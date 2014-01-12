@@ -32,8 +32,20 @@ package com.oaxoa.fx {
  *
  */
 public final class LightningFadeType {
+
+    /**
+     * TBD
+     */
     public static const NONE:String = "none";
+
+    /**
+     * TBD
+     */
     public static const GENERATION:String = "generation";
+
+    /**
+     * TBD
+     */
     public static const TIP_TO_END:String = "tip";
 }
 }

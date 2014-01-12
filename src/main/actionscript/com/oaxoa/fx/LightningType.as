@@ -24,18 +24,32 @@
  */
 package com.oaxoa.fx {
 /**
- * Lightning Type Enums
+ * Lightning Preset Helper
  *
- * @author        Pierluigi Pesenti (blog.oaxoa.com)
- * @contributor   Andras Csizmadia (www.vpmedia.eu)
+ * @author        Andras Csizmadia (www.vpmedia.eu)
  * @version        0.6.0
  *
  */
 public final class LightningType {
+
+    /**
+     * TBD
+     */
     public static const DISCHARGE:String = "discharge";
+
+    /**
+     * TBD
+     */
     public static const LIGHTNING:String = "lightning";
+
+    /**
+     * TBD
+     */
     public static const SHOCK:String = "shock";
 
+    /**
+     * TBD
+     */
     public static function setType(lightning:Lightning, type:String):void {
         switch (type) {
             case DISCHARGE :

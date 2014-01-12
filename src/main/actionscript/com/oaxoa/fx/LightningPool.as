@@ -23,7 +23,13 @@
 
  */
 package com.oaxoa.fx {
-
+/**
+ * Lightning Object Pool
+ *
+ * @author        Andras Csizmadia (www.vpmedia.eu)
+ * @version        0.6.0
+ *
+ */
 public final class LightningPool {
 
     private static var MAX_VALUE:uint;
@@ -36,31 +42,34 @@ public final class LightningPool {
 
     private static var CURRENT_ITEM:Lightning;
 
-    public static function initialize(maxPoolSize:uint, growthValue:uint):void {
+    private static const INITIALIZED:Boolean = initialize(64, 4);
+
+    public static function initialize(maxPoolSize:uint, growthValue:uint):Boolean {
+        trace("LightningPool::initialize: " + arguments);
         MAX_VALUE = maxPoolSize;
         GROWTH_VALUE = growthValue;
         COUNTER = maxPoolSize;
-
-        var i:uint = maxPoolSize;
-
         POOL = new Vector.<Lightning>(MAX_VALUE);
+        // Pre-create objects
+        var i:uint = maxPoolSize;
         while (--i > -1)
-            POOL[i] = new Lightning();
+            POOL[i] = new Lightning(0, 0, 0, true);
+        // Flag it
+        return true;
     }
 
     public static function getLightning():Lightning {
         if (COUNTER > 0)
             return CURRENT_ITEM = POOL[--COUNTER];
-
         var i:uint = GROWTH_VALUE;
         while (--i > -1)
-            POOL.unshift(new Lightning());
+            POOL.unshift(new Lightning(0, 0, 0, true));
         COUNTER = GROWTH_VALUE;
         return getLightning();
 
     }
 
-    public static function disposeLightning(disposedLightning:Lightning):void {
+    public static function putLightning(disposedLightning:Lightning):void {
         POOL[COUNTER++] = disposedLightning;
     }
 }

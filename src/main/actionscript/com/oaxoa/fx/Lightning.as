@@ -265,8 +265,9 @@ public class Lightning extends Sprite {
      * @param thickness The lightning thickness
      * @param generation The lightning sub-generation
      */
-    public function Lightning(color:uint = 0xFFFFFF, thickness:Number = 2, generation:uint = 0) {
-        preInitialize(color, thickness, generation);
+    public function Lightning(color:uint = 0xFFFFFF, thickness:Number = 2, generation:uint = 0, isPooled:Boolean = false) {
+        if (!isPooled)
+            preInitialize(color, thickness, generation);
     }
 
     //----------------------------------
@@ -276,7 +277,7 @@ public class Lightning extends Sprite {
     /**
      * @private
      */
-    private function preInitialize(color:uint, thickness:Number, generation:uint):void {
+    internal function preInitialize(color:uint, thickness:Number, generation:uint):void {
         setupDefaults();
         _color = color;
         this.thickness = thickness;
@@ -455,7 +456,9 @@ public class Lightning extends Sprite {
                     // calc. child angle
                     var childAngle:Number = Math.random() * _childrenAngleVariation - _childrenAngleVariation / 2;
                     // create child Lightning
-                    var child:Lightning = new Lightning(_color, thickness, generation + 1);
+                    //var child:Lightning = new Lightning(_color, thickness, generation + 1);
+                    var child:Lightning = LightningPool.getLightning();
+                    child.preInitialize(_color, thickness, generation + 1);
                     child.parentInstance = this;
                     child.lifeSpan = Math.random() * (childrenLifeSpanMax - childrenLifeSpanMin) + childrenLifeSpanMin;
                     child.position = 1 - startStep / _steps;
