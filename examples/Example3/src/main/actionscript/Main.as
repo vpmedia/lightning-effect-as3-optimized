@@ -1,7 +1,8 @@
 /*
  Licensed under the MIT License
 
- Copyright (c) 2008 Pierluigi Pesenti
+ Copyright (c) 2008 Pierluigi Pesenti (blog.oaxoa.com)
+ Contributor 2014 Andras Csizmadia (www.vpmedia.hu)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -19,8 +20,6 @@
  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://blog.oaxoa.com/
  */
 package {
 import com.bit101.components.ComboBox;
@@ -38,7 +37,9 @@ import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
 import flash.text.TextFormat;
 
-[SWF(width="800", height="600", frameRate="30", backgroundColor="#000000")]
+// http://blog.oaxoa.com/wp-content/examples/showExample.php?f=lightning_test5.swf&w=730&h=680
+
+[SWF(width="800", height="600", frameRate="30", backgroundColor="#001a4d")]
 public final class Main extends Sprite {
     private var ll:Lightning;
 
@@ -123,20 +124,20 @@ public final class Main extends Sprite {
         cb0.addItem({label: "Moving Thunderbolt", value: 4});
         cb0.addItem({label: "Moving Thunderbolt (Max length + max length variation)", value: 5});
         cb0.selectedIndex = 0;
-        cb0.addEventListener(Event.CHANGE, onComboChange);
+        cb0.addEventListener(Event.SELECT, onComboChange);
 
         cb1 = new ComboBox(this, d+=105);
         cb1.addItem({label: "Discharge", value: false});
         cb1.addItem({label: "Lightning (detached end)", value: true});
         cb1.selectedIndex = 1;
-        cb1.addEventListener(Event.CHANGE, onComboChange);
+        cb1.addEventListener(Event.SELECT, onComboChange);
 
         cb2 = new ComboBox(this, d+=105);
         cb2.addItem({label: "None", value: LightningFadeType.NONE});
         cb2.addItem({label: "Generation", value: LightningFadeType.GENERATION});
         cb2.addItem({label: "Tip to end", value: LightningFadeType.TIP_TO_END});
         cb2.selectedIndex = 2;
-        cb2.addEventListener(Event.CHANGE, onComboChange);
+        cb2.addEventListener(Event.SELECT, onComboChange);
 
         cb3 = new ComboBox(this, d+=105);
         cb3.addItem({label: "None", value: LightningFadeType.NONE});

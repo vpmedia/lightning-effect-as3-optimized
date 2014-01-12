@@ -1,7 +1,8 @@
 /*
  Licensed under the MIT License
 
- Copyright (c) 2008 Pierluigi Pesenti
+ Copyright (c) 2008 Pierluigi Pesenti (blog.oaxoa.com)
+ Contributor 2014 Andras Csizmadia (www.vpmedia.hu)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -19,8 +20,6 @@
  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://blog.oaxoa.com/
  */
 package {
 import com.oaxoa.fx.Lightning;
@@ -33,7 +32,9 @@ import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
 import flash.geom.Point;
 
-[SWF(width="800", height="600", frameRate="30", backgroundColor="#000000")]
+// http://blog.oaxoa.com/wp-content/examples/showExample.php?f=lightning_test_coil.swf&w=727&h=566
+
+[SWF(width="800", height="600", frameRate="30", backgroundColor="#001a4d")]
 public final class Main extends Sprite {
 
     private static const cx:uint = 360;

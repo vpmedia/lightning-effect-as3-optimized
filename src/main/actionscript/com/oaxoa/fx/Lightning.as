@@ -377,8 +377,13 @@ package com.oaxoa.fx {
                 if (generateChildRandom < childrenProbability)
                     generateChild();
                 //trace(this, id, "update", numChildren, childrenArray.length);
-                if (isVisible)
+                if (isVisible) {
                     render();
+                    visible = true;
+                } else {
+                    visible = false;
+                    return;
+                }
                 const n:uint = childrenArray ? childrenArray.length : 0;
                 for (var i:uint = 0; i < n; i++) {
                     childrenArray[i].update();
@@ -502,7 +507,7 @@ package com.oaxoa.fx {
 
         public function set color(value:uint):void {
             _color = value;
-            const n:uint = childrenArray.length;
+            const n:uint = childrenArray ? childrenArray.length : 0;
             for (var i:uint = 0; i < n; i++) {
                 childrenArray[i].color = value;
             }
@@ -613,7 +618,7 @@ package com.oaxoa.fx {
 
         public function set childrenAngleVariation(value:Number):void {
             _childrenAngleVariation = value;
-            const n:uint = childrenArray.length;
+            const n:uint = childrenArray ? childrenArray.length : 0;
             for (var i:uint = 0; i < n; i++) {
                 childrenArray[i].childAngle = Math.random() * value - value / 2;
                 childrenArray[i].childrenAngleVariation = value;
@@ -628,7 +633,7 @@ package com.oaxoa.fx {
 
         public function set wavelength(value:Number):void {
             _wavelength = value;
-            const n:uint = childrenArray.length;
+            const n:uint = childrenArray ? childrenArray.length : 0;
             for (var i:uint = 0; i < n; i++) {
                 childrenArray[i].wavelength = value;
             }
@@ -642,7 +647,7 @@ package com.oaxoa.fx {
 
         public function set amplitude(value:Number):void {
             _amplitude = value;
-            const n:uint = childrenArray.length;
+            const n:uint = childrenArray ? childrenArray.length : 0;
             for (var i:uint = 0; i < n; i++) {
                 childrenArray[i].amplitude = value;
             }
@@ -656,7 +661,7 @@ package com.oaxoa.fx {
 
         public function set speed(value:Number):void {
             _speed = value;
-            const n:uint = childrenArray.length;
+            const n:uint = childrenArray ? childrenArray.length : 0;
             for (var i:uint = 0; i < n; i++) {
                 childrenArray[i].speed = value;
             }

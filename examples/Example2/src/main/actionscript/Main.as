@@ -1,7 +1,8 @@
 /*
  Licensed under the MIT License
 
- Copyright (c) 2008 Pierluigi Pesenti
+ Copyright (c) 2008 Pierluigi Pesenti (blog.oaxoa.com)
+ Contributor 2014 Andras Csizmadia (www.vpmedia.hu)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -19,8 +20,6 @@
  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://blog.oaxoa.com/
  */
 package {
 import com.oaxoa.fx.Lightning;
@@ -32,7 +31,9 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
 
-[SWF(width="800", height="600", frameRate="30", backgroundColor="#000000")]
+// http://blog.oaxoa.com/wp-content/examples/showExample.php?f=lightning_test_plug.swf&w=413&h=564
+
+[SWF(width="800", height="600", frameRate="30", backgroundColor="#001a4d")]
 public final class Main extends Sprite {
     private var fingers;
     private var dot1:Sprite;
@@ -67,28 +68,27 @@ public final class Main extends Sprite {
         fingers.addChild(dot2);
         dot2.x = 50;
 
-        fingers.x = fingers.y = 400;
+        fingers.y = 400;
+        fingers.x = fingers.y / 2.5 - 10;
+
         //
         dot3 = new Sprite();
-        dot3.graphics.beginFill(0x333333);
+        dot3.graphics.beginFill(0xFF0000);
         dot3.graphics.drawCircle(0, 0, 8);
         dot3.graphics.endFill();
-        dot3.x = dot3.y = 10;
+        dot3.x = 50;
+        dot3.y = 50;
         addChild(dot3);
 
         //
         dot4 = new Sprite();
-        dot4.graphics.beginFill(0x333333);
+        dot4.graphics.beginFill(0x00FF00);
         dot4.graphics.drawCircle(0, 0, 8);
         dot4.graphics.endFill();
-        dot4.x = dot3.y = 200;
+        dot4.x = 150;
+        dot4.y = 50;
         addChild(dot3);
 
-        //
-        //setChildIndex(fingers, 2);
-        var iy:Number = fingers.y;
-
-        fingers.x = fingers.y / 2.5 - 10;
         //
         var color:uint = 0xddeeff;
         ll = new Lightning(color, 2);
@@ -116,27 +116,27 @@ public final class Main extends Sprite {
 
         updatePositions();
 
-        addEventListener(MouseEvent.MOUSE_MOVE, onmove);
-        addEventListener(Event.ENTER_FRAME, onframe);
+        stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+        addEventListener(Event.ENTER_FRAME, onFrameEnter);
     }
 
-
-    function updatePositions():void {
+    private function updatePositions():void {
         ll.endX = fingers.x + dot1.x;
         ll.endY = fingers.y + dot1.y;
         ll2.endX = fingers.x + dot2.x;
         ll2.endY = fingers.y + dot2.y;
     }
 
-    function onmove(event:MouseEvent):void {
+    private function onMouseMove(event:MouseEvent):void {
+        //trace(this, "onMouseMove");
         fingers.y = mouseY - 150;
-        if (fingers.y == 320) fingers.y = 320;
+        if (fingers.y > 600) fingers.y = 600;
         fingers.x = fingers.y / 2.5 - 10;
         updatePositions();
-        event.updateAfterEvent();
+       // event.updateAfterEvent();
     }
 
-    function onframe(event:Event):void {
+    private function onFrameEnter(event:Event):void {
         ll.update();
         ll2.update();
     }
