@@ -23,6 +23,8 @@
  http://blog.oaxoa.com/
  */
 package {
+import com.bit101.components.ComboBox;
+import com.bit101.components.Slider;
 import com.oaxoa.fx.Lightning;
 import com.oaxoa.fx.LightningFadeType;
 
@@ -35,69 +37,84 @@ import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
 import flash.text.TextFormat;
 
+[SWF(width="800", height="600", frameRate="30", backgroundColor="#000000")]
 public final class Main extends Sprite {
     private var ll:Lightning;
 
-    private var cross1:MovieClip = new MovieClip();
-    private var cross2:MovieClip = new MovieClip();
+    private var cross1:MovieClip;
+    private var cross2:MovieClip;
 
-    private var circles:MovieClip = new MovieClip();
+    private var circles:Shape;
 
-    private var cb0:MovieClip;
-    private var cb1:MovieClip;
-    private var cb2:MovieClip;
-    private var cb3:MovieClip;
-    private var cb4:MovieClip;
-    private var cb5:MovieClip;
-    private var cb6:MovieClip;
-    private var cb7:MovieClip;
-    private var cb8:MovieClip;
-    private var cb9:MovieClip;
-    private var cb10:MovieClip;
-    private var cb11:MovieClip;
-    private var cb12:MovieClip;
-    private var cb13:MovieClip;
+    private var cb0:ComboBox;
+    private var cb1:ComboBox;
+    private var cb2:ComboBox;
+    private var cb3:ComboBox;
 
-    private var slider:MovieClip;
-    private var slider1:MovieClip;
-    private var slider2:MovieClip;
-    private var slider3:MovieClip;
-    private var slider4:MovieClip;
-    private var slider5:MovieClip;
-    private var slider6:MovieClip;
-    private var slider7:MovieClip;
-    private var slider8:MovieClip;
-    private var slider9:MovieClip;
-    private var slider10:MovieClip;
-    private var slider11:MovieClip;
-    private var slider12:MovieClip;
-    private var slider13:MovieClip;
+    private var slider1:Slider;
+    private var slider2:Slider;
+    private var slider3:Slider;
+    private var slider4:Slider;
+    private var slider5:Slider;
+    private var slider6:Slider;
+    private var slider7:Slider;
+    private var slider8:Slider;
+    private var slider9:Slider;
+    private var slider10:Slider;
+    private var slider11:Slider;
+    private var slider12:Slider;
+    private var slider13:Slider;
 
     public function Main() {
+        addEventListener(Event.ADDED_TO_STAGE, onAdded);
+    }
+
+    private function onAdded(event:Event):void {
+        removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+        //
+        cross1 = new MovieClip();
+        cross1.graphics.beginFill(0xFFFFFF);
+        cross1.graphics.drawCircle(0, 0, 8);
+        cross1.graphics.endFill();
+        cross1.x = 100;
+        cross1.y = 400;
+        addChild(cross1);
+        cross1.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        cross1.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        //
+        cross2 = new MovieClip();
+        cross2.graphics.beginFill(0xFFFFFF);
+        cross2.graphics.drawCircle(0, 0, 8);
+        cross2.graphics.endFill();
+        cross2.x = 700;
+        cross2.y = 400;
+        addChild(cross2);
+        cross2.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        cross2.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        //
+        cross1.buttonMode = cross2.buttonMode = cross1.useHandCursor = cross2.useHandCursor = true;
+        //
         var color:uint = 0xffffff;
         ll = new Lightning(color, 2);
         ll.blendMode = BlendMode.ADD;
-
+        ll.startX = cross1.x;
+        ll.startY = cross1.y;
+        ll.endX = cross2.x;
+        ll.endY = cross2.y;
+        ll.childrenMaxGenerations = 3;
+        ll.childrenMaxCountDecay = .5;
+        addChild(ll);
+        //
         var glow:GlowFilter = new GlowFilter();
         glow.color = color;
         glow.strength = 4;
         glow.quality = 3;
         glow.blurX = glow.blurY = 10;
         ll.filters = [glow];
-        addChild(ll);
-        ll.startX = cross1.x;
-        ll.startY = cross1.y;
-
-        ll.endX = cross2.x;
-        ll.endY = cross2.y;
-
-        setChildIndex(ll, 0);
-
-        ll.childrenMaxGenerations = 3;
-        ll.childrenMaxCountDecay = .5;
-
-        var tfmt:TextFormat = new TextFormat("_sans", 11, 0xffffff);
-
+        //
+        var d:int = 0;
+        //
+        cb0 = new ComboBox(this, d);
         cb0.addItem({label: "Choose a preset", value: 0});
         cb0.addItem({label: "Fast discharge", value: 1});
         cb0.addItem({label: "Fast discharge (Max length + max length variation)", value: 2});
@@ -105,77 +122,79 @@ public final class Main extends Sprite {
         cb0.addItem({label: "Moving Thunderbolt", value: 4});
         cb0.addItem({label: "Moving Thunderbolt (Max length + max length variation)", value: 5});
         cb0.selectedIndex = 0;
-        cb0.addEventListener(Event.CHANGE, oncb);
-        cb0.textField.setStyle("textFormat", tfmt);
-        cb0.dropdown.setRendererStyle("textFormat", tfmt);
+        cb0.addEventListener(Event.CHANGE, onComboChange);
 
+        cb1 = new ComboBox(this, d+=105);
         cb1.addItem({label: "Discharge", value: false});
         cb1.addItem({label: "Lightning (detached end)", value: true});
         cb1.selectedIndex = 1;
-        cb1.addEventListener(Event.CHANGE, oncb);
-        cb1.textField.setStyle("textFormat", tfmt);
-        cb1.dropdown.setRendererStyle("textFormat", tfmt);
+        cb1.addEventListener(Event.CHANGE, onComboChange);
 
+        cb2 = new ComboBox(this, d+=105);
         cb2.addItem({label: "None", value: LightningFadeType.NONE});
         cb2.addItem({label: "Generation", value: LightningFadeType.GENERATION});
         cb2.addItem({label: "Tip to end", value: LightningFadeType.TIP_TO_END});
         cb2.selectedIndex = 2;
-        cb2.addEventListener(Event.CHANGE, oncb);
-        cb2.textField.setStyle("textFormat", tfmt);
-        cb2.dropdown.setRendererStyle("textFormat", tfmt);
+        cb2.addEventListener(Event.CHANGE, onComboChange);
 
+        cb3 = new ComboBox(this, d+=105);
         cb3.addItem({label: "None", value: LightningFadeType.NONE});
         cb3.addItem({label: "Generation", value: LightningFadeType.GENERATION});
         cb3.addItem({label: "Tip to end", value: LightningFadeType.TIP_TO_END});
         cb3.selectedIndex = 2;
-        cb3.addEventListener(Event.CHANGE, oncb);
-        cb3.textField.setStyle("textFormat", tfmt);
-        cb3.dropdown.setRendererStyle("textFormat", tfmt);
+        cb3.addEventListener(Event.CHANGE, onComboChange);
 
-
-        slider.addEventListener(Event.CHANGE, onslider);
-        slider2.addEventListener(Event.CHANGE, onslider);
-        slider3.addEventListener(Event.CHANGE, onslider);
-        slider4.addEventListener(Event.CHANGE, onslider);
-        slider5.addEventListener(Event.CHANGE, onslider);
-        slider6.addEventListener(Event.CHANGE, onslider);
-        slider7.addEventListener(Event.CHANGE, onslider);
-        slider8.addEventListener(Event.CHANGE, onslider);
-        slider9.addEventListener(Event.CHANGE, onslider);
-        slider10.addEventListener(Event.CHANGE, onslider);
-        slider11.addEventListener(Event.CHANGE, onslider);
-        slider12.addEventListener(Event.CHANGE, onslider);
-        slider13.addEventListener(Event.CHANGE, onslider);
+        d = 0;
+        slider1 = new Slider(Slider.HORIZONTAL, this, d, 100);
+        slider1.addEventListener(Event.CHANGE, onSliderChange);
+        slider2 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider2.addEventListener(Event.CHANGE, onSliderChange);
+        slider3 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider3.addEventListener(Event.CHANGE, onSliderChange);
+        slider4 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider4.addEventListener(Event.CHANGE, onSliderChange);
+        slider5 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider5.addEventListener(Event.CHANGE, onSliderChange);
+        slider6 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider6.addEventListener(Event.CHANGE, onSliderChange);
+        slider7 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider7.addEventListener(Event.CHANGE, onSliderChange);
+        d = 0;
+        slider8 = new Slider(Slider.HORIZONTAL, this, d, 200);
+        slider8.addEventListener(Event.CHANGE, onSliderChange);
+        slider9 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider9.addEventListener(Event.CHANGE, onSliderChange);
+        slider10 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider10.addEventListener(Event.CHANGE, onSliderChange);
+        slider11 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider11.addEventListener(Event.CHANGE, onSliderChange);
+        slider12 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider12.addEventListener(Event.CHANGE, onSliderChange);
+        slider13 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider13.addEventListener(Event.CHANGE, onSliderChange);
 
 
         var tf:TextFormat = new TextFormat();
         tf.color = 0xffffff;
 
-        cross1.addEventListener(MouseEvent.MOUSE_UP, onup);
-        cross1.addEventListener(MouseEvent.MOUSE_DOWN, ondown);
-        cross2.addEventListener(MouseEvent.MOUSE_UP, onup);
-        cross2.addEventListener(MouseEvent.MOUSE_DOWN, ondown);
-        cross1.buttonMode = cross2.buttonMode = cross1.useHandCursor = cross2.useHandCursor = true;
-
-
-        var circles:Shape = new Shape();
+        circles = new Shape();
         addChildAt(circles, 0);
 
-        addEventListener(Event.ENTER_FRAME, onframe);
+        addEventListener(Event.ENTER_FRAME, onEnter);
     }
 
-    function onframe(event:Event):void {
+    private function onEnter(event:Event):void {
         ll.startX = cross1.x;
         ll.startY = cross1.y;
-
         ll.endX = cross2.x;
         ll.endY = cross2.y;
         ll.update();
         updateCircles();
     }
 
-    function oncb(event:Event):void {
-        var t:MovieClip = event.currentTarget as MovieClip;
+    private function onComboChange(event:Event):void {
+        var t:ComboBox = event.currentTarget as ComboBox;
+        trace(this, "onComboChange", t);
         switch (t) {
             case cb0:
                 setPreset(t.selectedItem.value);
@@ -195,12 +214,13 @@ public final class Main extends Sprite {
         }
     }
 
-    function onslider(event:Event):void {
-        var t:MovieClip = event.currentTarget as MovieClip;
+    private function onSliderChange(event:Event):void {
+        var t:Slider = event.currentTarget as Slider;
+        trace(this, "onSliderChange", t);
         //ttip.show(t.value.toString());
         // ttip.y = t.y - 30;
         switch (t) {
-            case slider:
+            case slider1:
                 ll.smoothPercentage = t.value;
                 break;
             case slider2:
@@ -250,7 +270,8 @@ public final class Main extends Sprite {
         ll.render();
     }
 
-    function setPreset(n:uint):void {
+    private function setPreset(n:uint):void {
+        trace(this, "setPreset", n);
         switch (n) {
             // fast discharge
             case 1:
@@ -386,8 +407,8 @@ public final class Main extends Sprite {
         updateSliders();
     }
 
-    function updateSliders():void {
-        slider.value = ll.smoothPercentage;
+    private function updateSliders():void {
+        slider1.value = ll.smoothPercentage;
         slider2.value = ll.childrenAngleVariation;
         slider3.value = ll.childrenMaxCount;
         slider4.value = ll.wavelength;
@@ -404,17 +425,17 @@ public final class Main extends Sprite {
 
 ///////////////////
 
-    function ondown(event:MouseEvent):void {
+    private function onMouseDown(event:MouseEvent):void {
         event.currentTarget.alpha = .2;
         event.currentTarget.startDrag();
     }
 
-    function onup(event:MouseEvent):void {
+    private function onMouseUp(event:MouseEvent):void {
         event.currentTarget.alpha = 1;
         event.currentTarget.stopDrag();
     }
 
-    function updateCircles():void {
+    private function updateCircles():void {
         circles.graphics.clear();
         if (ll.maxLength > 0) {
             circles.graphics.lineStyle(6, 0xffffff, .3);
@@ -422,9 +443,9 @@ public final class Main extends Sprite {
             circles.graphics.lineStyle(2, 0xffffff, .4);
             circles.graphics.drawCircle(cross1.x, cross1.y, ll.maxLength + ll.maxLengthVary);
             /*var steps:uint = 5;
-            for (var i:uint = 1; i
+             for (var i:uint = 1; i
 
-                    } */
+             } */
         }
     }
 }

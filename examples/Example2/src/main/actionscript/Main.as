@@ -34,37 +34,62 @@ import flash.filters.GlowFilter;
 
 [SWF(width="800", height="600", frameRate="30", backgroundColor="#000000")]
 public final class Main extends Sprite {
-    private var fingers:MovieClip = new MovieClip();
-    private var dot3:Sprite = new Sprite();
-    private var dot4:Sprite = new Sprite();
+    private var fingers;
+    private var dot1:Sprite;
+    private var dot2:Sprite;
+    private var dot3:Sprite;
+    private var dot4:Sprite;
     private var ll:Lightning;
     private var ll2:Lightning;
 
     public function Main() {
+        addEventListener(Event.ADDED_TO_STAGE, onAdded);
+    }
 
-        var dot1:Sprite = new Sprite();
+    private function onAdded(event:Event):void {
+        removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+
+        fingers = new MovieClip();
+        addChild(fingers);
+        //
+        dot1 = new Sprite();
         dot1.name = "dot1";
+        dot1.graphics.beginFill(0x333333);
+        dot1.graphics.drawCircle(0, 0, 8);
+        dot1.graphics.endFill();
         fingers.addChild(dot1);
-        var dot2:Sprite = new Sprite();
+        //
+        dot2 = new Sprite();
         dot2.name = "dot2";
+        dot2.graphics.beginFill(0x666666);
+        dot2.graphics.drawCircle(0, 0, 8);
+        dot2.graphics.endFill();
         fingers.addChild(dot2);
         dot2.x = 50;
 
-        fingers.x = fingers.y = 200;
-
+        fingers.x = fingers.y = 400;
+        //
+        dot3 = new Sprite();
+        dot3.graphics.beginFill(0x333333);
+        dot3.graphics.drawCircle(0, 0, 8);
+        dot3.graphics.endFill();
         dot3.x = dot3.y = 10;
-        dot4.x = dot4.y = 200;
-
-
-        addChild(fingers);
         addChild(dot3);
-        addChild(dot4);
 
-        setChildIndex(fingers, 2);
+        //
+        dot4 = new Sprite();
+        dot4.graphics.beginFill(0x333333);
+        dot4.graphics.drawCircle(0, 0, 8);
+        dot4.graphics.endFill();
+        dot4.x = dot3.y = 200;
+        addChild(dot3);
+
+        //
+        //setChildIndex(fingers, 2);
         var iy:Number = fingers.y;
 
         fingers.x = fingers.y / 2.5 - 10;
-
+        //
         var color:uint = 0xddeeff;
         ll = new Lightning(color, 2);
         ll2 = new Lightning(color, 2);
@@ -97,10 +122,10 @@ public final class Main extends Sprite {
 
 
     function updatePositions():void {
-        ll.endX = fingers.x + fingers.getChildByName("dot1").x;
-        ll.endY = fingers.y + fingers.getChildByName("dot1").y;
-        ll2.endX = fingers.x + fingers.getChildByName("dot2").x;
-        ll2.endY = fingers.y + fingers.getChildByName("dot2").y;
+        ll.endX = fingers.x + dot1.x;
+        ll.endY = fingers.y + dot1.y;
+        ll2.endX = fingers.x + dot2.x;
+        ll2.endY = fingers.y + dot2.y;
     }
 
     function onmove(event:MouseEvent):void {

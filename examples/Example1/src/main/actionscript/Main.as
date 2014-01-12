@@ -29,6 +29,7 @@ import com.oaxoa.fx.LightningFadeType;
 import flash.display.BlendMode;
 import flash.display.Sprite;
 import flash.events.Event;
+import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
 import flash.geom.Point;
 
@@ -41,16 +42,21 @@ public final class Main extends Sprite {
 
     private var ll:Lightning;
 
-    private var dot1:Sprite = new Sprite();
+    private var dot1:Sprite;
 
-    private var dot2:Sprite = new Sprite();
+    private var dot2:Sprite;
 
-    private var ball:Sprite = new Sprite();
+    private var ball:Sprite;
 
     private var p:Point;
 
     public function Main() {
+        addEventListener(Event.ADDED_TO_STAGE, onAdded);
+    }
 
+    private function onAdded(event:Event):void {
+        removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+        // lightning
         var color:uint = 0xffffff;
         ll = new Lightning(color, 2);
         ll.blendMode = BlendMode.ADD;
@@ -61,36 +67,53 @@ public final class Main extends Sprite {
         ll.childrenMaxCountDecay = .5;
         ll.steps = 150;
         ll.alphaFadeType = LightningFadeType.TIP_TO_END;
-
+        ll.childrenProbability = .3;
+        addChild(ll);
+        // ball
+        ball = new Sprite();
         ball.useHandCursor = ball.buttonMode = true;
-        dot1.mouseEnabled = dot2.mouseEnabled = false;
+        ball.graphics.beginFill(0xCCCCCC);
+        ball.graphics.drawCircle(0, 0, 15);
+        ball.graphics.endFill();
+        ball.x = 400;
+        ball.y = 50;
+        addChild(ball);
+        // dot1
+        dot1 = new Sprite();
+        dot1.mouseEnabled = false;
+        dot1.graphics.beginFill(0x666666);
+        dot1.graphics.drawCircle(0, 0, 8);
+        dot1.graphics.endFill();
         dot1.alpha = .75;
-
+        dot1.x = 100;
+        dot1.y = 100;
+        addChild(dot1);
+        // dot2
+        dot2 = new Sprite();
+        dot2.graphics.beginFill(0x333333);
+        dot2.graphics.drawCircle(0, 0, 8);
+        dot2.graphics.endFill();
+        dot2.mouseEnabled = false;
+        dot2.x = 600;
+        dot2.y = 100;
+        addChild(dot2);
+        // glow for all
         var glow:GlowFilter = new GlowFilter();
         glow.color = color;
         glow.strength = 3.5;
         glow.quality = 3;
         glow.blurX = glow.blurY = 10;
         ll.filters = dot1.filters = dot2.filters = [glow];
-        addChild(ll);
-
-        ll.childrenProbability = .3;
 
         p = new Point();
         randomizePoint();
 
-        addEventListener(Event.ENTER_FRAME, onframe);
-
+        ball.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+        ball.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+        addEventListener(Event.ENTER_FRAME, onFrameEnter);
     }
 
-    private function randomizePoint():void {
-        var angle:Number = -Math.random() * Math.PI;
-        var dist:Number = 160 + Math.random() * 180;
-        p.x = cx + Math.cos(angle) * dist;
-        p.y = cy + Math.sin(angle) * dist;
-    }
-
-    function onframe(event:Event):void {
+    private function onFrameEnter(event:Event):void {
 
         var rnd:Number = Math.random();
         if (rnd < .05) randomizePoint();
@@ -128,13 +151,19 @@ public final class Main extends Sprite {
         ll.update();
     }
 
-    /*function onmdown(event:MouseEvent):void {
-     ball.startDrag();
-     }
-     ball.addEventListener(MouseEvent.MOUSE_DOWN, onmdown);
-     ball.addEventListener(MouseEvent.MOUSE_UP, onmup);
-     function onmup(event:MouseEvent):void {
-     ball.stopDrag();
-     }*/
+    private function randomizePoint():void {
+        var angle:Number = -Math.random() * Math.PI;
+        var dist:Number = 160 + Math.random() * 180;
+        p.x = cx + Math.cos(angle) * dist;
+        p.y = cy + Math.sin(angle) * dist;
+    }
+
+    private function onMouseDown(event:MouseEvent):void {
+        ball.startDrag();
+    }
+
+    private function onMouseUp(event:MouseEvent):void {
+        ball.stopDrag();
+    }
 }
 }

@@ -266,16 +266,11 @@ package com.oaxoa.fx {
                 _lifeTimer.removeEventListener(TimerEvent.TIMER, dispose);
                 _lifeTimer.stop();
             }
-            if (childrenArray) {
-                const n:uint = childrenArray.length;
-                for (var i:uint = 0; i < n; i++) {
-                    childrenArray[i].dispose();
-                }
-                childrenArray.length = 0;
-                childrenArray = null;
-            }
+            disposeAllChildren();
+            childrenArray = null;
             parentInstance = null;
-            this.parent.removeChild(this);
+            if(this.parent)
+                this.parent.removeChild(this);
         }
 
         /**
@@ -287,6 +282,7 @@ package com.oaxoa.fx {
                 for (var i:uint = 0; i < n; i++) {
                     childrenArray[i].dispose();
                 }
+                childrenArray.length = 0;
             }
         }
 
