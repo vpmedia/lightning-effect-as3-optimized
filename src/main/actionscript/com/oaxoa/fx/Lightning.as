@@ -164,9 +164,6 @@ public class Lightning extends Sprite {
     private var _childrenLengthDecay:Number;
 
     /** @private */
-    private var _thicknessDecay:Number;
-
-    /** @private */
     private var _wavelength:Number;
 
     /** @private */
@@ -189,10 +186,10 @@ public class Lightning extends Sprite {
     private var _drawMatrix:Matrix;
 
     /** @private */
-    private var _sbd:BitmapData;
+    private var _sBitmapData:BitmapData;
 
     /** @private */
-    private var _bbd:BitmapData;
+    private var _bBitmapData:BitmapData;
 
     /** @private */
     private var _lifeTimer:Timer;
@@ -219,31 +216,32 @@ public class Lightning extends Sprite {
     private var _multi2:Number;
 
     /** @private */
-    private var _stepEvery:Number;
-
-    /** @private */
     private var _dx:Number;
 
     /** @private */
     private var _dy:Number;
 
-    /** @private */
-    private var _soff:Number;
+    //----------------------------------
+    //  Local Properties
+    //----------------------------------
 
     /** @private */
-    private var _soffx:Number;
+    private var _sOffset:Number;
 
     /** @private */
-    private var _soffy:Number;
+    private var _sOffsetX:Number;
 
     /** @private */
-    private var _boff:Number;
+    private var _sOffsetY:Number;
 
     /** @private */
-    private var _boffx:Number;
+    private var _bOffset:Number;
 
     /** @private */
-    private var _boffy:Number;
+    private var _bOffsetX:Number;
+
+    /** @private */
+    private var _bOffsetY:Number;
 
     /** @private */
     private var _angle:Number;
@@ -318,7 +316,6 @@ public class Lightning extends Sprite {
         _childrenMaxCount = 4;
         _childrenMaxCountDecay = .5;
         _childrenLengthDecay = 0;
-        _thicknessDecay;
         _wavelength = .3;
         _amplitude = .5;
         _speed = 1;
@@ -348,11 +345,10 @@ public class Lightning extends Sprite {
         endY = 600;
         // setup factors
         _multi2 = .03;
-        _stepEvery = 4;
         _steps = 50;
         // setup display objects
-        _sbd = new BitmapData(_steps, 1, false);
-        _bbd = new BitmapData(_steps, 1, false);
+        _sBitmapData = new BitmapData(_steps, 1, false);
+        _bBitmapData = new BitmapData(_steps, 1, false);
         // setup points
         _sOffsets = [new Point(0, 0), new Point(0, 0)];
         _bOffsets = [new Point(0, 0), new Point(0, 0)];
@@ -501,16 +497,16 @@ public class Lightning extends Sprite {
         _len = Math.sqrt(_dx * _dx + _dy * _dy);
         _sOffsets[0].x += (_steps / 100) * _speed;
         _sOffsets[0].y += (_steps / 100) * _speed;
-        _sbd.perlinNoise(_steps / 20, _steps / 20, 1, _seed1, false, true, 7, true, _sOffsets);
+        _sBitmapData.perlinNoise(_steps / 20, _steps / 20, 1, _seed1, false, true, 7, true, _sOffsets);
         var calculatedWavelength:Number = _steps * _wavelength;
         var calculatedSpeed:Number = (calculatedWavelength * .1) * _speed;
         _bOffsets[0].x -= calculatedSpeed;
         _bOffsets[0].y += calculatedSpeed;
-        _bbd.perlinNoise(calculatedWavelength, calculatedWavelength, 1, _seed2, false, true, 7, true, _bOffsets);
+        _bBitmapData.perlinNoise(calculatedWavelength, calculatedWavelength, 1, _seed2, false, true, 7, true, _bOffsets);
         if (_smoothPercentage > 0) {
             _drawMatrix.identity();
             _drawMatrix.scale(_steps / _smooth.width, 1);
-            _bbd.draw(_smooth, _drawMatrix);
+            _bBitmapData.draw(_smooth, _drawMatrix);
         }
         // get visibility from parent or by chance
         if (parentInstance) {
@@ -568,14 +564,14 @@ public class Lightning extends Sprite {
                 this.graphics.lineStyle(int(relThickness), _color, relAlpha);
             }
             // draw lines with smoothing
-            _soff = (_sbd.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _multi2;
-            _soffx = Math.sin(_angle) * _soff;
-            _soffy = Math.cos(_angle) * _soff;
-            _boff = (_bbd.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _amplitude;
-            _boffx = Math.sin(_angle) * _boff;
-            _boffy = Math.cos(_angle) * _boff;
-            _tx = startX + _dx / (_steps - 1) * i + _soffx + _boffx;
-            _ty = startY + _dy / (_steps - 1) * i - _soffy - _boffy;
+            _sOffset = (_sBitmapData.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _multi2;
+            _sOffsetX = Math.sin(_angle) * _sOffset;
+            _sOffsetY = Math.cos(_angle) * _sOffset;
+            _bOffset = (_bBitmapData.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _amplitude;
+            _bOffsetX = Math.sin(_angle) * _bOffset;
+            _bOffsetY = Math.cos(_angle) * _bOffset;
+            _tx = startX + _dx / (_steps - 1) * i + _sOffsetX + _bOffsetX;
+            _ty = startY + _dy / (_steps - 1) * i - _sOffsetY - _bOffsetY;
             if (i == 0)
                 this.graphics.moveTo(_tx, _ty);
             this.graphics.lineTo(_tx, _ty);
@@ -627,8 +623,8 @@ public class Lightning extends Sprite {
         if (value > 2880)
             value = 2880;
         _steps = value;
-        _sbd = new BitmapData(_steps, 1, false);
-        _bbd = new BitmapData(_steps, 1, false);
+        _sBitmapData = new BitmapData(_steps, 1, false);
+        _bBitmapData = new BitmapData(_steps, 1, false);
         if (generation == 0)
             this.smoothPercentage = _smoothPercentage;
     }
@@ -730,21 +726,6 @@ public class Lightning extends Sprite {
      */
     public function get childrenProbabilityDecay():Number {
         return _childrenProbabilityDecay;
-    }
-
-    /**
-     * Getter/Setter for the '' property
-     */
-    public function set thicknessDecay(value:Number):void {
-        value = constrain(value);
-        _thicknessDecay = value;
-    }
-
-    /**
-     * @private
-     */
-    public function get thicknessDecay():Number {
-        return _thicknessDecay;
     }
 
     /**
