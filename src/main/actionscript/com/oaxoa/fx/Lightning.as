@@ -285,7 +285,7 @@ public class Lightning extends Sprite {
         this.thicknessFadeType = LightningFadeType.NONE;
         if (this.generation == 0)
             initialize();
-        trace(this, "initialize");
+        //trace(this, "initialize");
         addEventListener(Event.REMOVED_FROM_STAGE, onRemoved, false, 0, true);
     }
 
@@ -399,7 +399,7 @@ public class Lightning extends Sprite {
      * Disposes object and it's children.
      */
     private function dispose():void {
-        trace(this, "dispose");
+        //trace(this, "dispose");
         // remove timer
         if (_lifeTimer) {
             _lifeTimer.removeEventListener(TimerEvent.TIMER, onLifeSpanEnd);
@@ -535,12 +535,21 @@ public class Lightning extends Sprite {
         }
     }
 
-    public function render():void {
+    /**
+     * @private
+     */
+    private function render():void {
+        // clear canvas
         this.graphics.clear();
+        // start drawing
         this.graphics.lineStyle(thickness, _color);
+        // calculate angle
         _angle = Math.atan2(endY - startY, endX - startX);
+        // iterate
         for (var i:uint = 0; i < _steps; i++) {
-            var currentPosition:Number = 1 / _steps * (_steps - i)
+            // get current position
+            const currentPosition:Number = 1 / _steps * (_steps - i)
+            // calculate alpha and thickness
             var relAlpha:Number = 1;
             var relThickness:Number = thickness;
             if (alphaFadeType == LightningFadeType.TIP_TO_END) {
@@ -552,6 +561,7 @@ public class Lightning extends Sprite {
             if (alphaFadeType == LightningFadeType.TIP_TO_END || thicknessFadeType == LightningFadeType.TIP_TO_END) {
                 this.graphics.lineStyle(int(relThickness), _color, relAlpha);
             }
+            // draw lines with smoothing
             _soff = (_sbd.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _multi2;
             _soffx = Math.sin(_angle) * _soff;
             _soffy = Math.cos(_angle) * _soff;
@@ -563,7 +573,7 @@ public class Lightning extends Sprite {
             if (i == 0)
                 this.graphics.moveTo(_tx, _ty);
             this.graphics.lineTo(_tx, _ty);
-            // iterate
+            // iterate and draw sub-lines
             const n:uint = numChildren;
             for (var j:uint = 0; j < n; j++) {
                 var cL:Lightning = Lightning(getChildAt(j));
