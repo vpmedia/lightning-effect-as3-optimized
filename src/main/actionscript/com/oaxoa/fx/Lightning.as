@@ -1,7 +1,8 @@
 /*
  Licensed under the MIT License
 
- Copyright (c) 2008 Pierluigi Pesenti
+ Copyright (c) 2008 Pierluigi Pesenti (blog.oaxoa.com)
+ Contributor (2014 Andras Csizmadia (www.vpmedia.eu)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -179,6 +180,9 @@ public class Lightning extends Sprite {
     private var _smooth:Sprite;
 
     /** @private */
+    private var _smoothMatrix:Matrix;
+
+    /** @private */
     private var _sbd:BitmapData;
 
     /** @private */
@@ -244,10 +248,18 @@ public class Lightning extends Sprite {
     /** @private */
     private var _ty:Number;
 
+    //----------------------------------
+    //  Constructor
+    //----------------------------------
+
     /**
      * Constructor
+     *
+     * @param color The lightning color
+     * @param thickness The lightning thickness
+     * @param generation The lightning sub-generation
      */
-    public function Lightning(color:uint = 0xffffff, thickness:Number = 2, generation:uint = 0) {
+    public function Lightning(color:uint = 0xFFFFFF, thickness:Number = 2, generation:uint = 0) {
         setupDefaults();
         _color = color;
         this.thickness = thickness;
@@ -256,7 +268,12 @@ public class Lightning extends Sprite {
         this.thicknessFadeType = LightningFadeType.NONE;
         if (this.generation == 0)
             initialize();
+        addEventListener(Event.REMOVED_FROM_STAGE, onRemoved, false, 0, true);
     }
+
+    //----------------------------------
+    //  Private Methods
+    //----------------------------------
 
     /**
      * @private
@@ -303,12 +320,9 @@ public class Lightning extends Sprite {
         // start life timer if needed
         if (lifeSpan > 0) {
             _lifeTimer = new Timer(lifeSpan * 1000, 1);
-            _lifeTimer.addEventListener(TimerEvent.TIMER, dispose, false, 0, true);
+            _lifeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onLifeSpanEnd, false, 0, true);
             _lifeTimer.start();
         }
-        /*else {
-         addEventListener(Event.REMOVED_FROM_STAGE, dispose, false, 0, true);
-         } */
         // setup points
         startX = 50;
         startY = 200;
@@ -326,6 +340,7 @@ public class Lightning extends Sprite {
         _bOffsets = [new Point(0, 0), new Point(0, 0)];
         // setup smoothing
         if (generation == 0) {
+            _smoothMatrix = new Matrix();
             _smooth = new Sprite();
             childrenSmooth = new Sprite();
             smoothPercentage = 50;
@@ -335,7 +350,30 @@ public class Lightning extends Sprite {
         }
         // setup default props
         steps = 100;
-        childrenLengthDecay = .5;
+        _childrenLengthDecay = .5;
+    }
+
+    //----------------------------------
+    //  Event Handlers
+    //----------------------------------
+
+    /**
+     * @private
+     */
+    private function onRemoved(event:Event):void {
+        removeEventListener(Event.REMOVED_FROM_STAGE, onRemoved);
+        dispose();
+    }
+
+    /**
+     * @private
+     */
+    private function onLifeSpanEnd(event:TimerEvent):void {
+        //trace(this, "onLifeSpanEnd");
+        if (this.parent)
+            this.parent.removeChild(this);
+        else
+            dispose();
     }
 
     //----------------------------------
@@ -345,18 +383,18 @@ public class Lightning extends Sprite {
     /**
      * Disposes object and it's children.
      */
-    public function dispose(event:Event = null):void {
+    private function dispose():void {
         trace(this, "dispose");
         // remove timer
         if (_lifeTimer) {
-            _lifeTimer.removeEventListener(TimerEvent.TIMER, dispose);
+            _lifeTimer.removeEventListener(TimerEvent.TIMER, onLifeSpanEnd);
             _lifeTimer.stop();
         }
         // remove children
         disposeAllChildren();
         // remove from parent
-        if (parent)
-            parent.removeChild(this);
+        /* if (parent)
+         parent.removeChild(this); */
         parentInstance = null;
     }
 
@@ -365,7 +403,7 @@ public class Lightning extends Sprite {
      */
     public function disposeAllChildren():void {
         while (numChildren) {
-            Lightning(removeChildAt(0)).dispose();
+            removeChildAt(0);
         }
     }
 
@@ -373,10 +411,10 @@ public class Lightning extends Sprite {
      * Removes child Lightning objects over limit.
      */
     public function validateChildren():void {
-        if (numChildren && numChildren > childrenMaxCount) {
-            trace(this, "validateChildren", numChildren, childrenMaxCount, numChildren);
-            while (numChildren > childrenMaxCount) {
-                Lightning(removeChildAt(numChildren - 1)).dispose();
+        if (numChildren && numChildren > _childrenMaxCount) {
+            trace(this, "validateChildren", numChildren, _childrenMaxCount, numChildren);
+            while (numChildren > _childrenMaxCount) {
+                removeChildAt(numChildren - 1);
             }
         }
     }
@@ -388,44 +426,44 @@ public class Lightning extends Sprite {
      * @param recursive TBD
      */
     public function generateChild(n:uint = 1, recursive:Boolean = false):void {
-        if (generation < childrenMaxGenerations && numChildren < childrenMaxCount) {
+        if (generation < _childrenMaxGenerations && numChildren < _childrenMaxCount) {
             trace(this, "generateChild", generation, numChildren, _childrenMaxCount);
-            var targetChildSteps:uint = steps * childrenLengthDecay;
+            var targetChildSteps:uint = _steps * _childrenLengthDecay;
             if (targetChildSteps >= 2) {
                 for (var i:uint = 0; i < n; i++) {
-                    var startStep:uint = Math.random() * steps;
-                    var endStep:uint = Math.random() * steps;
+                    var startStep:uint = Math.random() * _steps;
+                    var endStep:uint = Math.random() * _steps;
                     while (endStep == startStep)
-                        endStep = Math.random() * steps;
+                        endStep = Math.random() * _steps;
                     // calc. child angle
-                    var childAngle:Number = Math.random() * childrenAngleVariation - childrenAngleVariation / 2;
+                    var childAngle:Number = Math.random() * _childrenAngleVariation - _childrenAngleVariation / 2;
                     // create child Lightning
-                    var child:Lightning = new Lightning(color, thickness, generation + 1);
+                    var child:Lightning = new Lightning(_color, thickness, generation + 1);
                     child.parentInstance = this;
                     child.lifeSpan = Math.random() * (childrenLifeSpanMax - childrenLifeSpanMin) + childrenLifeSpanMin;
-                    child.position = 1 - startStep / steps;
+                    child.position = 1 - startStep / _steps;
                     child.absolutePosition = absolutePosition * child.position;
                     child.alphaFadeType = alphaFadeType;
                     child.thicknessFadeType = thicknessFadeType;
                     if (alphaFadeType == LightningFadeType.GENERATION)
-                        child.alpha = 1 - (1 / (childrenMaxGenerations + 1)) * child.generation;
+                        child.alpha = 1 - (1 / (_childrenMaxGenerations + 1)) * child.generation;
                     if (thicknessFadeType == LightningFadeType.GENERATION)
-                        child.thickness = thickness - (thickness / (childrenMaxGenerations + 1)) * child.generation;
-                    child.childrenMaxGenerations = childrenMaxGenerations;
-                    child.childrenMaxCount = childrenMaxCount * (1 - childrenMaxCountDecay);
-                    child.childrenProbability = childrenProbability * (1 - childrenProbabilityDecay);
-                    child.childrenProbabilityDecay = childrenProbabilityDecay;
-                    child.childrenLengthDecay = childrenLengthDecay;
+                        child.thickness = thickness - (thickness / (_childrenMaxGenerations + 1)) * child.generation;
+                    child.childrenMaxGenerations = _childrenMaxGenerations;
+                    child.childrenMaxCount = _childrenMaxCount * (1 - _childrenMaxCountDecay);
+                    child.childrenProbability = _childrenProbability * (1 - _childrenProbabilityDecay);
+                    child.childrenProbabilityDecay = _childrenProbabilityDecay;
+                    child.childrenLengthDecay = _childrenLengthDecay;
                     child.childrenDetachedEnd = childrenDetachedEnd;
-                    child.wavelength = wavelength;
-                    child.amplitude = amplitude;
-                    child.speed = speed;
+                    child.wavelength = _wavelength;
+                    child.amplitude = _amplitude;
+                    child.speed = _speed;
                     child.initialize();
                     child.endStep = endStep;
                     child.startStep = startStep;
                     child.childAngle = childAngle;
                     addChild(child);
-                    child.steps = steps * (1 - childrenLengthDecay);
+                    child.steps = _steps * (1 - _childrenLengthDecay);
                     if (recursive)
                         child.generateChild(n, true);
                 }
@@ -441,22 +479,22 @@ public class Lightning extends Sprite {
         _dx = endX - startX;
         _dy = endY - startY;
         _len = Math.sqrt(_dx * _dx + _dy * _dy);
-        _sOffsets[0].x += (steps / 100) * speed;
-        _sOffsets[0].y += (steps / 100) * speed;
-        _sbd.perlinNoise(steps / 20, steps / 20, 1, _seed1, false, true, 7, true, _sOffsets);
-        var calculatedWavelength:Number = steps * wavelength;
-        var calculatedSpeed:Number = (calculatedWavelength * .1) * speed;
+        _sOffsets[0].x += (_steps / 100) * _speed;
+        _sOffsets[0].y += (_steps / 100) * _speed;
+        _sbd.perlinNoise(_steps / 20, _steps / 20, 1, _seed1, false, true, 7, true, _sOffsets);
+        var calculatedWavelength:Number = _steps * _wavelength;
+        var calculatedSpeed:Number = (calculatedWavelength * .1) * _speed;
         _bOffsets[0].x -= calculatedSpeed;
         _bOffsets[0].y += calculatedSpeed;
         _bbd.perlinNoise(calculatedWavelength, calculatedWavelength, 1, _seed2, false, true, 7, true, _bOffsets);
-        if (smoothPercentage > 0) {
+        if (_smoothPercentage > 0) {
             var drawMatrix:Matrix = new Matrix();
-            drawMatrix.scale(steps / _smooth.width, 1);
+            drawMatrix.scale(_steps / _smooth.width, 1);
             _bbd.draw(_smooth, drawMatrix);
         }
         // get visibility from parent or by chance
-        if (parentInstance != null) {
-            visible = parentInstance.visible;
+        if (parentInstance) {
+            visible = parent.visible;
         } else if (maxLength == 0) {
             visible = true;
         } else {
@@ -471,7 +509,7 @@ public class Lightning extends Sprite {
         }
         // generate children by chance
         var generateChildRandom:Number = Math.random();
-        if (generateChildRandom < childrenProbability)
+        if (generateChildRandom < _childrenProbability)
             generateChild();
         // render only if visible
         if (visible) {
@@ -489,8 +527,8 @@ public class Lightning extends Sprite {
         this.graphics.clear();
         this.graphics.lineStyle(thickness, _color);
         _angle = Math.atan2(endY - startY, endX - startX);
-        for (var i:uint = 0; i < steps; i++) {
-            var currentPosition:Number = 1 / steps * (steps - i)
+        for (var i:uint = 0; i < _steps; i++) {
+            var currentPosition:Number = 1 / _steps * (_steps - i)
             var relAlpha:Number = 1;
             var relThickness:Number = thickness;
             if (alphaFadeType == LightningFadeType.TIP_TO_END) {
@@ -505,11 +543,11 @@ public class Lightning extends Sprite {
             _soff = (_sbd.getPixel(i, 0) - 0x808080) / 0xffffff * _len * _multi2;
             _soffx = Math.sin(_angle) * _soff;
             _soffy = Math.cos(_angle) * _soff;
-            _boff = (_bbd.getPixel(i, 0) - 0x808080) / 0xffffff * _len * amplitude;
+            _boff = (_bbd.getPixel(i, 0) - 0x808080) / 0xffffff * _len * _amplitude;
             _boffx = Math.sin(_angle) * _boff;
             _boffy = Math.cos(_angle) * _boff;
-            _tx = startX + _dx / (steps - 1) * i + _soffx + _boffx;
-            _ty = startY + _dy / (steps - 1) * i - _soffy - _boffy;
+            _tx = startX + _dx / (_steps - 1) * i + _soffx + _boffx;
+            _ty = startY + _dy / (_steps - 1) * i - _soffy - _boffy;
             if (i == 0)
                 this.graphics.moveTo(_tx, _ty);
             this.graphics.lineTo(_tx, _ty);
@@ -523,7 +561,7 @@ public class Lightning extends Sprite {
                 }
                 if (cL.childrenDetachedEnd) {
                     var arad:Number = _angle + cL.childAngle / 180 * Math.PI;
-                    var childLength:Number = _len * childrenLengthDecay;
+                    var childLength:Number = _len * _childrenLengthDecay;
                     cL.endX = cL.startX + Math.cos(arad) * childLength;
                     cL.endY = cL.startY + Math.sin(arad) * childLength;
                 }
@@ -552,10 +590,8 @@ public class Lightning extends Sprite {
     //  Getters/Setters
     //----------------------------------
 
-    // STEPS
-
     /**
-     * Setter for the 'steps' property
+     * Getter/Setter for the 'steps' property
      */
     public function set steps(value:uint):void {
         if (value < 2)
@@ -566,68 +602,62 @@ public class Lightning extends Sprite {
         _sbd = new BitmapData(_steps, 1, false);
         _bbd = new BitmapData(_steps, 1, false);
         if (generation == 0)
-            this.smoothPercentage = smoothPercentage;
+            this.smoothPercentage = _smoothPercentage;
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get steps():uint {
         return _steps;
     }
 
-    // SMOOTH PERC.
-
     /**
-     * TBD
+     * Getter/Setter for the 'smoothPercentage' property
      */
     public function set smoothPercentage(value:Number):void {
         if (_smooth) {
             _smoothPercentage = value;
-            var smoothmatrix:Matrix = new Matrix();
-            smoothmatrix.createGradientBox(steps, 1);
+            _smoothMatrix.identity();
+            _smoothMatrix.createGradientBox(_steps, 1);
             var ratioOffset:uint = _smoothPercentage / 100 * 128;
             _smooth.graphics.clear();
-            _smooth.graphics.beginGradientFill("linear", [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], smoothmatrix);
-            _smooth.graphics.drawRect(0, 0, steps, 1);
+            _smooth.graphics.beginGradientFill("linear", [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], _smoothMatrix);
+            _smooth.graphics.drawRect(0, 0, _steps, 1);
             _smooth.graphics.endFill();
         }
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get smoothPercentage():Number {
         return _smoothPercentage;
     }
 
-    // CHILD SMOOTH PERC.
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenSmoothPercentage' property
      */
     public function set childrenSmoothPercentage(value:Number):void {
         _childrenSmoothPercentage = value;
-        var smoothmatrix:Matrix = new Matrix();
-        smoothmatrix.createGradientBox(steps, 1);
+        _smoothMatrix.identity();
+        _smoothMatrix.createGradientBox(_steps, 1);
         var ratioOffset:uint = _childrenSmoothPercentage / 100 * 128;
         childrenSmooth.graphics.clear();
-        childrenSmooth.graphics.beginGradientFill("linear", [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], smoothmatrix);
-        childrenSmooth.graphics.drawRect(0, 0, steps, 1);
+        childrenSmooth.graphics.beginGradientFill("linear", [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], _smoothMatrix);
+        childrenSmooth.graphics.drawRect(0, 0, _steps, 1);
         childrenSmooth.graphics.endFill();
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenSmoothPercentage():Number {
         return _childrenSmoothPercentage;
     }
 
-    // COLOR
-
     /**
-     * TBD
+     * Getter/Setter for the 'color' property
      */
     public function set color(value:uint):void {
         _color = value;
@@ -638,96 +668,74 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get color():uint {
         return _color;
     }
 
-    //
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenProbability' property
      */
     public function set childrenProbability(value:Number):void {
-        if (value > 1)
-            value = 1
-        else if (value < 0)
-            value = 0;
+        value = constrain(value);
         _childrenProbability = value;
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenProbability():Number {
         return _childrenProbability;
     }
 
-    //
-
     /**
-     * TBD
+     * Getter/Setter for the '' property
      */
     public function set childrenProbabilityDecay(value:Number):void {
-        if (value > 1)
-            value = 1
-        else if (value < 0)
-            value = 0;
+        value = constrain(value);
         _childrenProbabilityDecay = value;
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenProbabilityDecay():Number {
         return _childrenProbabilityDecay;
     }
 
-    // THICKNESS DECAY (Not impl.)
-
     /**
-     * TBD
+     * Getter/Setter for the '' property
      */
     public function set thicknessDecay(value:Number):void {
-        if (value > 1)
-            value = 1
-        else if (value < 0)
-            value = 0;
+        value = constrain(value);
         _thicknessDecay = value;
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get thicknessDecay():Number {
         return _thicknessDecay;
     }
 
-    // CHILD LEN. DECAY
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenLengthDecay' property
      */
     public function set childrenLengthDecay(value:Number):void {
-        if (value > 1)
-            value = 1
-        else if (value < 0)
-            value = 0;
+        value = constrain(value);
         _childrenLengthDecay = value;
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenLengthDecay():Number {
         return _childrenLengthDecay;
     }
 
-    // CHILD MAX GENERATIONS
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenMaxGenerations' property
      */
     public function set childrenMaxGenerations(value:uint):void {
         _childrenMaxGenerations = value;
@@ -735,16 +743,14 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenMaxGenerations():uint {
         return _childrenMaxGenerations;
     }
 
-    // CHILD MAX COUNT
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenMaxCount' property
      */
     public function set childrenMaxCount(value:uint):void {
         _childrenMaxCount = value;
@@ -752,36 +758,29 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenMaxCount():uint {
         return _childrenMaxCount;
     }
 
-    // CHILD MAX. COUNT DECAY
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenMaxCountDecay' property
      */
     public function set childrenMaxCountDecay(value:Number):void {
-        if (value > 1)
-            value = 1
-        else if (value < 0)
-            value = 0;
+        value = constrain(value);
         _childrenMaxCountDecay = value;
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenMaxCountDecay():Number {
         return _childrenMaxCountDecay;
     }
 
-    // ANGLE VAR.
-
     /**
-     * TBD
+     * Getter/Setter for the 'childrenAngleVariation' property
      */
     public function set childrenAngleVariation(value:Number):void {
         _childrenAngleVariation = value;
@@ -793,16 +792,14 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get childrenAngleVariation():Number {
         return _childrenAngleVariation;
     }
 
-    // WAVE LEN.
-
     /**
-     * TBD
+     * Getter/Setter for the 'wavelength' property
      */
     public function set wavelength(value:Number):void {
         _wavelength = value;
@@ -813,16 +810,14 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get wavelength():Number {
         return _wavelength;
     }
 
-    // AMP
-
     /**
-     * TBD
+     * Getter/Setter for the 'amplitude' property
      */
     public function set amplitude(value:Number):void {
         _amplitude = value;
@@ -833,16 +828,14 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get amplitude():Number {
         return _amplitude;
     }
 
-    // SPEED
-
     /**
-     * TBD
+     * Getter/Setter for the 'speed' property
      */
     public function set speed(value:Number):void {
         _speed = value;
@@ -853,10 +846,21 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * TBD
+     * @private
      */
     public function get speed():Number {
         return _speed;
+    }
+
+    //----------------------------------
+    //  Static Helper Methods
+    //----------------------------------
+
+    private static function constrain(num:Number, min:Number = 0, max:Number = 1):Number
+    {
+        if (num < min) return min;
+        if (num > max) return max;
+        return num;
     }
 }
 }

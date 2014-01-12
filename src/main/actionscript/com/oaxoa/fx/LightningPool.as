@@ -23,17 +23,8 @@
 
  */
 package com.oaxoa.fx {
-/**
- * Lightning Fade Type Enums
- *
- * @author        Pierluigi Pesenti (blog.oaxoa.com)
- * @contributor   Andras Csizmadia (www.vpmedia.eu)
- * @version        0.6.0
- *
- */
-public final class LightningFadeType {
-    public static const NONE:String = "none";
-    public static const GENERATION:String = "generation";
-    public static const TIP_TO_END:String = "tip";
+public class LightningPool {
+    public function LightningPool() {
+    }
 }
 }
