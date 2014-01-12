@@ -1,8 +1,8 @@
 /*
- Licensed under the MIT License
+ The MIT License (MIT)
 
  Copyright (c) 2008 Pierluigi Pesenti (blog.oaxoa.com)
- Contributor (2014 Andras Csizmadia (www.vpmedia.eu)
+ Contributor 2014 Andras Csizmadia (www.vpmedia.eu)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -86,10 +86,10 @@ public class Lightning extends Sprite {
     public var alphaFadeType:String;
 
     /** TBD */
-    public var childrenDetachedEnd:Boolean;
+    public var thicknessFadeType:String;
 
     /** TBD */
-    public var thicknessFadeType:String;
+    public var childrenDetachedEnd:Boolean;
 
     //----------------------------------
     //  Static Properties
@@ -281,8 +281,6 @@ public class Lightning extends Sprite {
         _color = color;
         this.thickness = thickness;
         this.generation = generation;
-        this.alphaFadeType = LightningFadeType.GENERATION;
-        this.thicknessFadeType = LightningFadeType.NONE;
         if (this.generation == 0)
             initialize();
         //trace(this, "initialize");
@@ -304,6 +302,11 @@ public class Lightning extends Sprite {
         childAngle = 0;
         maxLength = 0;
         maxLengthVary = 0;
+        startStep = 0;
+        endStep = 0;
+        alphaFadeType = LightningFadeType.GENERATION;
+        thicknessFadeType = LightningFadeType.NONE;
+        childrenDetachedEnd = false;
         // setter
         _smoothPercentage = 50;
         _childrenSmoothPercentage = 0;
@@ -536,9 +539,9 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * @private
+     * TBD
      */
-    private function render():void {
+    public function render():void {
         // clear canvas
         this.graphics.clear();
         // start drawing

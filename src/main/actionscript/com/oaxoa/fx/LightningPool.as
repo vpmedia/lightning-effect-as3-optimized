@@ -1,8 +1,8 @@
 /*
- Licensed under the MIT License
+ The MIT License (MIT)
 
  Copyright (c) 2008 Pierluigi Pesenti (blog.oaxoa.com)
- Contributor (2014 Andras Csizmadia (www.vpmedia.eu)
+ Contributor 2014 Andras Csizmadia (www.vpmedia.eu)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
