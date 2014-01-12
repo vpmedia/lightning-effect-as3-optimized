@@ -43,6 +43,8 @@ public final class Main extends Sprite {
     private var ll:Lightning;
     private var ll2:Lightning;
 
+    private static const COLOR:uint = 0xDDEEFF;
+
     public function Main() {
         addEventListener(Event.ADDED_TO_STAGE, onAdded);
     }
@@ -55,14 +57,14 @@ public final class Main extends Sprite {
         //
         dot1 = new Sprite();
         dot1.name = "dot1";
-        dot1.graphics.beginFill(0x333333);
+        dot1.graphics.beginFill(0x6699CC);
         dot1.graphics.drawCircle(0, 0, 8);
         dot1.graphics.endFill();
         fingers.addChild(dot1);
         //
         dot2 = new Sprite();
         dot2.name = "dot2";
-        dot2.graphics.beginFill(0x666666);
+        dot2.graphics.beginFill(0x6699CC);
         dot2.graphics.drawCircle(0, 0, 8);
         dot2.graphics.endFill();
         fingers.addChild(dot2);
@@ -73,26 +75,25 @@ public final class Main extends Sprite {
 
         //
         dot3 = new Sprite();
-        dot3.graphics.beginFill(0xFF0000);
+        dot3.graphics.beginFill(0x336699);
         dot3.graphics.drawCircle(0, 0, 8);
         dot3.graphics.endFill();
-        dot3.x = 50;
+        dot3.x = 20;
         dot3.y = 50;
         addChild(dot3);
 
         //
         dot4 = new Sprite();
-        dot4.graphics.beginFill(0x00FF00);
+        dot4.graphics.beginFill(0x336699);
         dot4.graphics.drawCircle(0, 0, 8);
         dot4.graphics.endFill();
-        dot4.x = 150;
+        dot4.x = 60;
         dot4.y = 50;
-        addChild(dot3);
+        addChild(dot4);
 
         //
-        var color:uint = 0xddeeff;
-        ll = new Lightning(color, 2);
-        ll2 = new Lightning(color, 2);
+        ll = new Lightning(COLOR, 2);
+        ll2 = new Lightning(COLOR, 2);
         ll.blendMode = ll2.blendMode = BlendMode.ADD;
         ll.childrenProbability = ll2.childrenProbability = .5;
         ll.childrenLifeSpanMin = ll2.childrenLifeSpanMin = .1;
@@ -106,7 +107,7 @@ public final class Main extends Sprite {
         ll2.startY = dot4.y;
 
         var glow:GlowFilter = new GlowFilter();
-        glow.color = color;
+        glow.color = COLOR;
         glow.strength = 3.5;
         glow.quality = 3;
         glow.blurX = glow.blurY = 10;
@@ -133,7 +134,7 @@ public final class Main extends Sprite {
         if (fingers.y > 600) fingers.y = 600;
         fingers.x = fingers.y / 2.5 - 10;
         updatePositions();
-       // event.updateAfterEvent();
+        // event.updateAfterEvent();
     }
 
     private function onFrameEnter(event:Event):void {

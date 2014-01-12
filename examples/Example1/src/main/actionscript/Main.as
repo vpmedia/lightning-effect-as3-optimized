@@ -37,9 +37,11 @@ import flash.geom.Point;
 [SWF(width="800", height="600", frameRate="30", backgroundColor="#001a4d")]
 public final class Main extends Sprite {
 
-    private static const cx:uint = 360;
+    private static const CX:uint = 360;
 
-    private static const cy:uint = 320;
+    private static const CY:uint = 320;
+
+    private static const COLOR:uint = 0xDDEEFF;
 
     private var ll:Lightning;
 
@@ -57,9 +59,36 @@ public final class Main extends Sprite {
 
     private function onAdded(event:Event):void {
         removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+        // ball
+        ball = new Sprite();
+        ball.useHandCursor = ball.buttonMode = true;
+        ball.graphics.beginFill(0x333333);
+        ball.graphics.drawCircle(0, 0, 15);
+        ball.graphics.endFill();
+        ball.x = 400;
+        ball.y = 50;
+        addChild(ball);
+        // dot1
+        dot1 = new Sprite();
+        dot1.mouseEnabled = false;
+        dot1.graphics.beginFill(0xFFFFFF);
+        dot1.graphics.drawCircle(0, 0, 6);
+        dot1.graphics.endFill();
+        dot1.alpha = .75;
+        dot1.x = 100;
+        dot1.y = 100;
+        addChild(dot1);
+        // dot2
+        dot2 = new Sprite();
+        dot2.graphics.beginFill(0xFFFFFF);
+        dot2.graphics.drawCircle(0, 0, 3);
+        dot2.graphics.endFill();
+        dot2.mouseEnabled = false;
+        dot2.x = 600;
+        dot2.y = 100;
+        addChild(dot2);
         // lightning
-        var color:uint = 0xffffff;
-        ll = new Lightning(color, 2);
+        ll = new Lightning(COLOR, 2);
         ll.blendMode = BlendMode.ADD;
         ll.childrenDetachedEnd = true;
         ll.childrenLifeSpanMin = .1;
@@ -70,37 +99,9 @@ public final class Main extends Sprite {
         ll.alphaFadeType = LightningFadeType.TIP_TO_END;
         ll.childrenProbability = .3;
         addChild(ll);
-        // ball
-        ball = new Sprite();
-        ball.useHandCursor = ball.buttonMode = true;
-        ball.graphics.beginFill(0xCCCCCC);
-        ball.graphics.drawCircle(0, 0, 15);
-        ball.graphics.endFill();
-        ball.x = 400;
-        ball.y = 50;
-        addChild(ball);
-        // dot1
-        dot1 = new Sprite();
-        dot1.mouseEnabled = false;
-        dot1.graphics.beginFill(0x666666);
-        dot1.graphics.drawCircle(0, 0, 8);
-        dot1.graphics.endFill();
-        dot1.alpha = .75;
-        dot1.x = 100;
-        dot1.y = 100;
-        addChild(dot1);
-        // dot2
-        dot2 = new Sprite();
-        dot2.graphics.beginFill(0x333333);
-        dot2.graphics.drawCircle(0, 0, 8);
-        dot2.graphics.endFill();
-        dot2.mouseEnabled = false;
-        dot2.x = 600;
-        dot2.y = 100;
-        addChild(dot2);
         // glow for all
         var glow:GlowFilter = new GlowFilter();
-        glow.color = color;
+        glow.color = COLOR;
         glow.strength = 3.5;
         glow.quality = 3;
         glow.blurX = glow.blurY = 10;
@@ -118,12 +119,13 @@ public final class Main extends Sprite {
 
         var rnd:Number = Math.random();
         if (rnd < .05) randomizePoint();
-        var dx:Number = cx - ball.x;
-        var dy:Number = cy - ball.y;
+        var dx:Number = CX - ball.x;
+        var dy:Number = CY - ball.y;
         var d:Number = Math.sqrt(dx * dx + dy * dy);
         if (d < 310) {
             dot2.visible = true;
             if (ll.childrenDetachedEnd) {
+                trace("CLEAR #1");
                 ll.childrenDetachedEnd = false;
                 ll.alphaFadeType = LightningFadeType.GENERATION;
                 ll.disposeAllChildren();
@@ -134,6 +136,7 @@ public final class Main extends Sprite {
         } else {
             dot2.visible = false;
             if (!ll.childrenDetachedEnd) {
+                trace("CLEAR #2");
                 ll.childrenDetachedEnd = true;
                 ll.alphaFadeType = LightningFadeType.TIP_TO_END;
                 ll.disposeAllChildren();
@@ -141,12 +144,12 @@ public final class Main extends Sprite {
             ll.endX = p.x;
             ll.endY = p.y;
         }
-        var ddx:Number = cx - ll.endX;
-        var ddy:Number = cy - ll.endY;
+        var ddx:Number = CX - ll.endX;
+        var ddy:Number = CY - ll.endY;
         var aangle:Number = Math.atan2(ddy, ddx);
-        ll.startX = cx - Math.cos(aangle) * 80;
+        ll.startX = CX - Math.cos(aangle) * 80;
         dot1.scaleX = Math.sin(aangle);
-        ll.startY = cy;
+        ll.startY = CY;
         dot1.x = ll.startX;
         dot1.y = ll.startY;
         ll.update();
@@ -155,8 +158,8 @@ public final class Main extends Sprite {
     private function randomizePoint():void {
         var angle:Number = -Math.random() * Math.PI;
         var dist:Number = 160 + Math.random() * 180;
-        p.x = cx + Math.cos(angle) * dist;
-        p.y = cy + Math.sin(angle) * dist;
+        p.x = CX + Math.cos(angle) * dist;
+        p.y = CY + Math.sin(angle) * dist;
     }
 
     private function onMouseDown(event:MouseEvent):void {
