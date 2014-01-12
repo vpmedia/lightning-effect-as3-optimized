@@ -23,8 +23,45 @@
 
  */
 package com.oaxoa.fx {
-public class LightningPool {
-    public function LightningPool() {
+
+public final class LightningPool {
+
+    private static var MAX_VALUE:uint;
+
+    private static var GROWTH_VALUE:uint;
+
+    private static var COUNTER:uint;
+
+    private static var POOL:Vector.<Lightning>;
+
+    private static var CURRENT_ITEM:Lightning;
+
+    public static function initialize(maxPoolSize:uint, growthValue:uint):void {
+        MAX_VALUE = maxPoolSize;
+        GROWTH_VALUE = growthValue;
+        COUNTER = maxPoolSize;
+
+        var i:uint = maxPoolSize;
+
+        POOL = new Vector.<Lightning>(MAX_VALUE);
+        while (--i > -1)
+            POOL[i] = new Lightning();
+    }
+
+    public static function getLightning():Lightning {
+        if (COUNTER > 0)
+            return CURRENT_ITEM = POOL[--COUNTER];
+
+        var i:uint = GROWTH_VALUE;
+        while (--i > -1)
+            POOL.unshift(new Lightning());
+        COUNTER = GROWTH_VALUE;
+        return getLightning();
+
+    }
+
+    public static function disposeLightning(disposedLightning:Lightning):void {
+        POOL[COUNTER++] = disposedLightning;
     }
 }
 }

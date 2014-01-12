@@ -99,6 +99,9 @@ public class Lightning extends Sprite {
     private static const SMOOTH_COLOR:uint = 0x808080;
 
     /** @private */
+    private static const WHITE_COLOR:uint = 0xFFFFFF;
+
+    /** @private */
     private static var ID:uint = 0;
 
     //----------------------------------
@@ -183,6 +186,9 @@ public class Lightning extends Sprite {
     private var _smoothMatrix:Matrix;
 
     /** @private */
+    private var _drawMatrix:Matrix;
+
+    /** @private */
     private var _sbd:BitmapData;
 
     /** @private */
@@ -260,6 +266,17 @@ public class Lightning extends Sprite {
      * @param generation The lightning sub-generation
      */
     public function Lightning(color:uint = 0xFFFFFF, thickness:Number = 2, generation:uint = 0) {
+        preInitialize(color, thickness, generation);
+    }
+
+    //----------------------------------
+    //  Private Methods
+    //----------------------------------
+
+    /**
+     * @private
+     */
+    private function preInitialize(color:uint, thickness:Number, generation:uint):void {
         setupDefaults();
         _color = color;
         this.thickness = thickness;
@@ -268,12 +285,9 @@ public class Lightning extends Sprite {
         this.thicknessFadeType = LightningFadeType.NONE;
         if (this.generation == 0)
             initialize();
+        trace(this, "initialize");
         addEventListener(Event.REMOVED_FROM_STAGE, onRemoved, false, 0, true);
     }
-
-    //----------------------------------
-    //  Private Methods
-    //----------------------------------
 
     /**
      * @private
@@ -339,6 +353,7 @@ public class Lightning extends Sprite {
         _sOffsets = [new Point(0, 0), new Point(0, 0)];
         _bOffsets = [new Point(0, 0), new Point(0, 0)];
         // setup smoothing
+        _drawMatrix = new Matrix();
         if (generation == 0) {
             _smoothMatrix = new Matrix();
             _smooth = new Sprite();
@@ -392,9 +407,9 @@ public class Lightning extends Sprite {
         }
         // remove children
         disposeAllChildren();
-        // remove from parent
-        /* if (parent)
-         parent.removeChild(this); */
+        // null variables
+        _lifeTimer = null;
+        _smoothMatrix = null;
         parentInstance = null;
     }
 
@@ -427,7 +442,6 @@ public class Lightning extends Sprite {
      */
     public function generateChild(n:uint = 1, recursive:Boolean = false):void {
         if (generation < _childrenMaxGenerations && numChildren < _childrenMaxCount) {
-            trace(this, "generateChild", generation, numChildren, _childrenMaxCount);
             var targetChildSteps:uint = _steps * _childrenLengthDecay;
             if (targetChildSteps >= 2) {
                 for (var i:uint = 0; i < n; i++) {
@@ -488,9 +502,9 @@ public class Lightning extends Sprite {
         _bOffsets[0].y += calculatedSpeed;
         _bbd.perlinNoise(calculatedWavelength, calculatedWavelength, 1, _seed2, false, true, 7, true, _bOffsets);
         if (_smoothPercentage > 0) {
-            var drawMatrix:Matrix = new Matrix();
-            drawMatrix.scale(_steps / _smooth.width, 1);
-            _bbd.draw(_smooth, drawMatrix);
+            _drawMatrix.identity();
+            _drawMatrix.scale(_steps / _smooth.width, 1);
+            _bbd.draw(_smooth, _drawMatrix);
         }
         // get visibility from parent or by chance
         if (parentInstance) {
@@ -508,14 +522,12 @@ public class Lightning extends Sprite {
             visible = Math.random() < isVisibleProbability ? true : false;
         }
         // generate children by chance
-        var generateChildRandom:Number = Math.random();
+        const generateChildRandom:Number = Math.random();
         if (generateChildRandom < _childrenProbability)
             generateChild();
         // render only if visible
-        if (visible) {
-            // trigger render method
+        if (visible)
             render();
-        }
         // update children
         const n:uint = numChildren;
         for (var i:uint = 0; i < n; i++) {
@@ -540,10 +552,10 @@ public class Lightning extends Sprite {
             if (alphaFadeType == LightningFadeType.TIP_TO_END || thicknessFadeType == LightningFadeType.TIP_TO_END) {
                 this.graphics.lineStyle(int(relThickness), _color, relAlpha);
             }
-            _soff = (_sbd.getPixel(i, 0) - 0x808080) / 0xffffff * _len * _multi2;
+            _soff = (_sbd.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _multi2;
             _soffx = Math.sin(_angle) * _soff;
             _soffy = Math.cos(_angle) * _soff;
-            _boff = (_bbd.getPixel(i, 0) - 0x808080) / 0xffffff * _len * _amplitude;
+            _boff = (_bbd.getPixel(i, 0) - SMOOTH_COLOR) / WHITE_COLOR * _len * _amplitude;
             _boffx = Math.sin(_angle) * _boff;
             _boffy = Math.cos(_angle) * _boff;
             _tx = startX + _dx / (_steps - 1) * i + _soffx + _boffx;
@@ -856,8 +868,7 @@ public class Lightning extends Sprite {
     //  Static Helper Methods
     //----------------------------------
 
-    private static function constrain(num:Number, min:Number = 0, max:Number = 1):Number
-    {
+    private static function constrain(num:Number, min:Number = 0, max:Number = 1):Number {
         if (num < min) return min;
         if (num > max) return max;
         return num;

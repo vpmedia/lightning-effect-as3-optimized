@@ -31,7 +31,7 @@ package com.oaxoa.fx {
  * @version        0.6.0
  *
  */
-public class LightningType {
+public final class LightningType {
     public static const DISCHARGE:String = "discharge";
     public static const LIGHTNING:String = "lightning";
     public static const SHOCK:String = "shock";
