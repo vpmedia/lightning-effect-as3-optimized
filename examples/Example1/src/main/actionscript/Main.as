@@ -27,6 +27,8 @@ import com.oaxoa.fx.Lightning;
 import com.oaxoa.fx.LightningFadeType;
 import com.oaxoa.fx.LightningPool;
 
+import flash.display.Bitmap;
+
 import flash.display.BlendMode;
 import flash.display.Sprite;
 import flash.events.Event;
@@ -139,6 +141,10 @@ public final class Main extends Sprite {
         ball.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
         ball.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
         addEventListener(Event.ENTER_FRAME, onFrameEnter);
+
+        // Debug
+        //addChild(new Bitmap(ll.bBitmapData)).y = 2;
+        //addChild(new Bitmap(ll.sBitmapData)).y = 4;
     }
 
     private function onFrameEnter(event:Event):void {

@@ -24,6 +24,7 @@
  */
 package com.oaxoa.fx {
 import flash.display.BitmapData;
+import flash.display.GradientType;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.TimerEvent;
@@ -282,7 +283,6 @@ public class Lightning extends Sprite {
         this.generation = generation;
         if (this.generation == 0)
             initialize();
-        //trace(this, "initialize");
         addEventListener(Event.REMOVED_FROM_STAGE, onRemoved, false, 0, true);
     }
 
@@ -315,10 +315,16 @@ public class Lightning extends Sprite {
         _childrenMaxGenerations = 1;
         _childrenMaxCount = 4;
         _childrenMaxCountDecay = .5;
-        _childrenLengthDecay = 0;
+        _childrenLengthDecay = .5;
         _wavelength = .3;
         _amplitude = .5;
         _speed = 1;
+        // private
+        _multi2 = .03;
+        _sOffsets = [new Point(0, 0), new Point(0, 0)];
+        _bOffsets = [new Point(0, 0), new Point(0, 0)];
+        _seed1 = Math.random() * 100;
+        _seed2 = Math.random() * 100;
         // internal
         lifeSpan = 0;
         position = 0;
@@ -330,35 +336,18 @@ public class Lightning extends Sprite {
      */
     internal function initialize():void {
         //trace(this, "initialize");
-        // randomize seeds
-        _seed1 = Math.random() * 100;
-        _seed2 = Math.random() * 100;
         // start life timer if needed
         if (lifeSpan > 0) {
-            // TODO: only create once, but not every pool time
+            // TODO: only create once, but not every pool time, also it should start after added to stage?!
             _lifeTimer = new Timer(lifeSpan * 1000, 1);
             //_lifeTimer.delay = lifeSpan * 1000;
             //_lifeTimer.repeatCount = 1;
             _lifeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onLifeSpanEnd, false, 0, true);
             _lifeTimer.start();
         }
-        // setup points
-        startX = 50;
-        startY = 200;
-        endX = 50;
-        endY = 600;
-        // setup factors
-        _multi2 = .03;
-        _steps = 50;
-        // setup display objects
-        _sBitmapData = new BitmapData(_steps, 1, false);
-        _bBitmapData = new BitmapData(_steps, 1, false);
-        // setup points
-        _sOffsets = [new Point(0, 0), new Point(0, 0)];
-        _bOffsets = [new Point(0, 0), new Point(0, 0)];
+        // setup steps (important to call with setter)
+        steps = 100;
         // setup smoothing
-        if(!_drawMatrix)
-            _drawMatrix = new Matrix();
         if (generation == 0) {
             if(!_smoothMatrix)
                 _smoothMatrix = new Matrix();
@@ -369,9 +358,6 @@ public class Lightning extends Sprite {
         } else {
             _smooth = childrenSmooth = parentInstance.childrenSmooth;
         }
-        // setup default props
-        steps = 100;
-        _childrenLengthDecay = .5;
     }
 
     //----------------------------------
@@ -382,7 +368,6 @@ public class Lightning extends Sprite {
      * @private
      */
     private function onRemoved(event:Event):void {
-        removeEventListener(Event.REMOVED_FROM_STAGE, onRemoved);
         dispose();
     }
 
@@ -406,6 +391,8 @@ public class Lightning extends Sprite {
      */
     private function dispose():void {
         //trace(this, "dispose");
+        // remove listener(s)
+        removeEventListener(Event.REMOVED_FROM_STAGE, onRemoved);
         // remove timer
         if (_lifeTimer) {
             _lifeTimer.removeEventListener(TimerEvent.TIMER, onLifeSpanEnd);
@@ -481,6 +468,7 @@ public class Lightning extends Sprite {
                     child.wavelength = _wavelength;
                     child.amplitude = _amplitude;
                     child.speed = _speed;
+                    // call initialize later for children
                     child.initialize();
                     // save some start vars. (this has been refactored from object)
                     child.endStep = endStep;
@@ -515,6 +503,8 @@ public class Lightning extends Sprite {
         _bOffsets[0].y += calculatedSpeed;
         _bBitmapData.perlinNoise(calculatedWavelength, calculatedWavelength, 1, _seed2, false, true, 7, true, _bOffsets);
         if (_smoothPercentage > 0) {
+            if(!_drawMatrix)
+                _drawMatrix = new Matrix();
             _drawMatrix.identity();
             _drawMatrix.scale(_steps / _smooth.width, 1);
             _bBitmapData.draw(_smooth, _drawMatrix);
@@ -618,6 +608,7 @@ public class Lightning extends Sprite {
                 + " id=" + id
                 + " generation=" + generation
                 + " numChildren=" + numChildren
+                + " startToEndXY=" + int(startX) + "," + int(startY) + "|" + int(endX) + "," + int(endY)
                 + "]";
     }
 
@@ -629,10 +620,7 @@ public class Lightning extends Sprite {
      * Getter/Setter for the 'steps' property
      */
     public function set steps(value:uint):void {
-        if (value < 2)
-            value = 2;
-        if (value > 2880)
-            value = 2880;
+        value = constrain(value, 2, 8192);
         _steps = value;
         _sBitmapData = new BitmapData(_steps, 1, false);
         _bBitmapData = new BitmapData(_steps, 1, false);
@@ -655,9 +643,9 @@ public class Lightning extends Sprite {
             _smoothPercentage = value;
             _smoothMatrix.identity();
             _smoothMatrix.createGradientBox(_steps, 1);
-            var ratioOffset:uint = _smoothPercentage / 100 * 128;
+            const ratioOffset:uint = _smoothPercentage / 100 * 128;
             _smooth.graphics.clear();
-            _smooth.graphics.beginGradientFill("linear", [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], _smoothMatrix);
+            _smooth.graphics.beginGradientFill(GradientType.LINEAR, [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], _smoothMatrix);
             _smooth.graphics.drawRect(0, 0, _steps, 1);
             _smooth.graphics.endFill();
         }
@@ -677,9 +665,9 @@ public class Lightning extends Sprite {
         _childrenSmoothPercentage = value;
         _smoothMatrix.identity();
         _smoothMatrix.createGradientBox(_steps, 1);
-        var ratioOffset:uint = _childrenSmoothPercentage / 100 * 128;
+        const ratioOffset:uint = _childrenSmoothPercentage / 100 * 128;
         childrenSmooth.graphics.clear();
-        childrenSmooth.graphics.beginGradientFill("linear", [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], _smoothMatrix);
+        childrenSmooth.graphics.beginGradientFill(GradientType.LINEAR, [SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR, SMOOTH_COLOR], [1, 0, 0, 1], [0, ratioOffset, 255 - ratioOffset, 255], _smoothMatrix);
         childrenSmooth.graphics.drawRect(0, 0, _steps, 1);
         childrenSmooth.graphics.endFill();
     }
@@ -873,9 +861,30 @@ public class Lightning extends Sprite {
     }
 
     //----------------------------------
+    //  Getters only (For debugging)
+    //----------------------------------
+
+    /**
+     * BitmapData used to generate noise with optional smoothing.
+     */
+    public function get bBitmapData():BitmapData {
+        return _bBitmapData;
+    }
+
+    /**
+     * BitmapData used to generate noise.
+     */
+    public function get sBitmapData():BitmapData {
+        return _sBitmapData;
+    }
+
+    //----------------------------------
     //  Static Helper Methods
     //----------------------------------
 
+    /**
+     * @private
+     */
     private static function constrain(num:Number, min:Number = 0, max:Number = 1):Number {
         if (num < min) return min;
         if (num > max) return max;
