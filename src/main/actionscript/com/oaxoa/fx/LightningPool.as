@@ -32,19 +32,40 @@ package com.oaxoa.fx {
  */
 public final class LightningPool {
 
+    /**
+     * @private
+     */
     private static var MAX_VALUE:uint;
 
+    /**
+     * @private
+     */
     private static var GROWTH_VALUE:uint;
 
+    /**
+     * @private
+     */
     private static var COUNTER:uint;
 
+    /**
+     * @private
+     */
     private static var POOL:Vector.<Lightning>;
 
+    /**
+     * @private
+     */
     private static var CURRENT_ITEM:Lightning;
 
-    private static const INITIALIZED:Boolean = initialize(64, 4);
+    /**
+     * @private
+     */
+    private static const INITIALIZED:Boolean = initialize(32, 4);
 
-    public static function initialize(maxPoolSize:uint, growthValue:uint):Boolean {
+    /**
+     * @private
+     */
+    private static function initialize(maxPoolSize:uint, growthValue:uint):Boolean {
         trace("LightningPool::initialize: " + arguments);
         MAX_VALUE = maxPoolSize;
         GROWTH_VALUE = growthValue;
@@ -58,19 +79,36 @@ public final class LightningPool {
         return true;
     }
 
+    /**
+     * Get Lightning from pool
+     */
     public static function getLightning():Lightning {
+        // return top element if existing
         if (COUNTER > 0)
             return CURRENT_ITEM = POOL[--COUNTER];
+        // Pre-create objects
         var i:uint = GROWTH_VALUE;
         while (--i > -1)
             POOL.unshift(new Lightning(0, 0, 0, true));
         COUNTER = GROWTH_VALUE;
+        // Create another one as result
         return getLightning();
 
     }
 
+    /**
+     * Put Lightning to pool
+     */
     public static function putLightning(disposedLightning:Lightning):void {
+        //trace("LightningPool::putLightning: " + disposedLightning);
         POOL[COUNTER++] = disposedLightning;
+    }
+
+    /**
+     * Get pool size
+     */
+    public static function getSize():uint {
+        return COUNTER
     }
 }
 }

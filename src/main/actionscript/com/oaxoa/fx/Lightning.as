@@ -289,7 +289,7 @@ public class Lightning extends Sprite {
     /**
      * @private
      */
-    private function setupDefaults():void {
+    internal function setupDefaults():void {
         // public
         startX = 0;
         startY = 0;
@@ -328,13 +328,17 @@ public class Lightning extends Sprite {
     /**
      * @private
      */
-    private function initialize():void {
+    internal function initialize():void {
+        //trace(this, "initialize");
         // randomize seeds
         _seed1 = Math.random() * 100;
         _seed2 = Math.random() * 100;
         // start life timer if needed
         if (lifeSpan > 0) {
+            // TODO: only create once, but not every pool time
             _lifeTimer = new Timer(lifeSpan * 1000, 1);
+            //_lifeTimer.delay = lifeSpan * 1000;
+            //_lifeTimer.repeatCount = 1;
             _lifeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onLifeSpanEnd, false, 0, true);
             _lifeTimer.start();
         }
@@ -353,9 +357,11 @@ public class Lightning extends Sprite {
         _sOffsets = [new Point(0, 0), new Point(0, 0)];
         _bOffsets = [new Point(0, 0), new Point(0, 0)];
         // setup smoothing
-        _drawMatrix = new Matrix();
+        if(!_drawMatrix)
+            _drawMatrix = new Matrix();
         if (generation == 0) {
-            _smoothMatrix = new Matrix();
+            if(!_smoothMatrix)
+                _smoothMatrix = new Matrix();
             _smooth = new Sprite();
             childrenSmooth = new Sprite();
             smoothPercentage = 50;
@@ -407,10 +413,11 @@ public class Lightning extends Sprite {
         }
         // remove children
         disposeAllChildren();
-        // null variables
+        // reset some more variables before putting back to pool
         _lifeTimer = null;
-        _smoothMatrix = null;
         parentInstance = null;
+        // pool back
+        LightningPool.putLightning(this);
     }
 
     /**
@@ -475,11 +482,15 @@ public class Lightning extends Sprite {
                     child.amplitude = _amplitude;
                     child.speed = _speed;
                     child.initialize();
+                    // save some start vars. (this has been refactored from object)
                     child.endStep = endStep;
                     child.startStep = startStep;
                     child.childAngle = childAngle;
-                    addChild(child);
+                    // setup display steps
                     child.steps = _steps * (1 - _childrenLengthDecay);
+                    // add to display list
+                    addChild(child);
+                    // generate childs
                     if (recursive)
                         child.generateChild(n, true);
                 }
@@ -714,7 +725,7 @@ public class Lightning extends Sprite {
     }
 
     /**
-     * Getter/Setter for the '' property
+     * Getter/Setter for the 'childrenProbabilityDecay' property
      */
     public function set childrenProbabilityDecay(value:Number):void {
         value = constrain(value);

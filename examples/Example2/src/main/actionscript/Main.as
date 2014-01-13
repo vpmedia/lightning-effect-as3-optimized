@@ -24,6 +24,7 @@
  */
 package {
 import com.oaxoa.fx.Lightning;
+import com.oaxoa.fx.LightningPool;
 
 import flash.display.BlendMode;
 import flash.display.MovieClip;
@@ -31,6 +32,8 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
+import flash.text.TextField;
+import flash.text.TextFormat;
 
 import net.hires.debug.Stats;
 
@@ -46,6 +49,8 @@ public final class Main extends Sprite {
     private var ll:Lightning;
     private var ll2:Lightning;
 
+    private var debugLabel:TextField;
+
     private static const COLOR:uint = 0xDDEEFF;
 
     public function Main() {
@@ -54,6 +59,19 @@ public final class Main extends Sprite {
 
     private function onAdded(event:Event):void {
         removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+        // debug label
+        const textFormat:TextFormat = new TextFormat("Arial", 10, 0xFFFFFF);
+        debugLabel = new TextField();
+        addChild(debugLabel);
+        debugLabel.width = 800;
+        debugLabel.height = 20;
+        debugLabel.y = 580;
+        debugLabel.embedFonts = false;
+        debugLabel.multiline = false;
+        debugLabel.selectable = false;
+        debugLabel.defaultTextFormat = textFormat;
+        debugLabel.text = "Initializing...";
+        debugLabel.setTextFormat(textFormat);
         // stats
         var stats:Stats = new Stats()
         addChild(stats);
@@ -145,6 +163,7 @@ public final class Main extends Sprite {
     }
 
     private function onFrameEnter(event:Event):void {
+        debugLabel.text = "LightningPool size= " + LightningPool.getSize() + " | " + ll;
         ll.update();
         ll2.update();
     }

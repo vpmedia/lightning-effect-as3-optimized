@@ -27,6 +27,7 @@ import com.bit101.components.ComboBox;
 import com.bit101.components.Slider;
 import com.oaxoa.fx.Lightning;
 import com.oaxoa.fx.LightningFadeType;
+import com.oaxoa.fx.LightningPool;
 import com.oaxoa.fx.LightningType;
 
 import flash.display.BlendMode;
@@ -36,6 +37,7 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
+import flash.text.TextField;
 import flash.text.TextFormat;
 
 import net.hires.debug.Stats;
@@ -70,12 +72,27 @@ public final class Main extends Sprite {
     private var slider12:Slider;
     private var slider13:Slider;
 
+    private var debugLabel:TextField;
+
     public function Main() {
         addEventListener(Event.ADDED_TO_STAGE, onAdded);
     }
 
     private function onAdded(event:Event):void {
         removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+        // debug label
+        const textFormat:TextFormat = new TextFormat("Arial", 10, 0xFFFFFF);
+        debugLabel = new TextField();
+        addChild(debugLabel);
+        debugLabel.width = 800;
+        debugLabel.height = 20;
+        debugLabel.y = 580;
+        debugLabel.embedFonts = false;
+        debugLabel.multiline = false;
+        debugLabel.selectable = false;
+        debugLabel.defaultTextFormat = textFormat;
+        debugLabel.text = "Initializing...";
+        debugLabel.setTextFormat(textFormat);
         // stats
         var stats:Stats = new Stats()
         addChild(stats);
@@ -133,20 +150,20 @@ public final class Main extends Sprite {
         cb0.selectedIndex = 0;
         cb0.addEventListener(Event.SELECT, onComboChange);
 
-        cb1 = new ComboBox(this, d+=105);
+        cb1 = new ComboBox(this, d += 105);
         cb1.addItem({label: "Discharge", value: false});
         cb1.addItem({label: "Lightning (detached end)", value: true});
         cb1.selectedIndex = 1;
         cb1.addEventListener(Event.SELECT, onComboChange);
 
-        cb2 = new ComboBox(this, d+=105);
+        cb2 = new ComboBox(this, d += 105);
         cb2.addItem({label: "None", value: LightningFadeType.NONE});
         cb2.addItem({label: "Generation", value: LightningFadeType.GENERATION});
         cb2.addItem({label: "Tip to end", value: LightningFadeType.TIP_TO_END});
         cb2.selectedIndex = 2;
         cb2.addEventListener(Event.SELECT, onComboChange);
 
-        cb3 = new ComboBox(this, d+=105);
+        cb3 = new ComboBox(this, d += 105);
         cb3.addItem({label: "None", value: LightningFadeType.NONE});
         cb3.addItem({label: "Generation", value: LightningFadeType.GENERATION});
         cb3.addItem({label: "Tip to end", value: LightningFadeType.TIP_TO_END});
@@ -156,30 +173,30 @@ public final class Main extends Sprite {
         d = 0;
         slider1 = new Slider(Slider.HORIZONTAL, this, d, 100);
         slider1.addEventListener(Event.CHANGE, onSliderChange);
-        slider2 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider2 = new Slider(Slider.HORIZONTAL, this, d += 105, 100);
         slider2.addEventListener(Event.CHANGE, onSliderChange);
-        slider3 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider3 = new Slider(Slider.HORIZONTAL, this, d += 105, 100);
         slider3.addEventListener(Event.CHANGE, onSliderChange);
-        slider4 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider4 = new Slider(Slider.HORIZONTAL, this, d += 105, 100);
         slider4.addEventListener(Event.CHANGE, onSliderChange);
-        slider5 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider5 = new Slider(Slider.HORIZONTAL, this, d += 105, 100);
         slider5.addEventListener(Event.CHANGE, onSliderChange);
-        slider6 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider6 = new Slider(Slider.HORIZONTAL, this, d += 105, 100);
         slider6.addEventListener(Event.CHANGE, onSliderChange);
-        slider7 = new Slider(Slider.HORIZONTAL, this, d+=105, 100);
+        slider7 = new Slider(Slider.HORIZONTAL, this, d += 105, 100);
         slider7.addEventListener(Event.CHANGE, onSliderChange);
         d = 0;
         slider8 = new Slider(Slider.HORIZONTAL, this, d, 200);
         slider8.addEventListener(Event.CHANGE, onSliderChange);
-        slider9 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider9 = new Slider(Slider.HORIZONTAL, this, d += 105, 200);
         slider9.addEventListener(Event.CHANGE, onSliderChange);
-        slider10 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider10 = new Slider(Slider.HORIZONTAL, this, d += 105, 200);
         slider10.addEventListener(Event.CHANGE, onSliderChange);
-        slider11 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider11 = new Slider(Slider.HORIZONTAL, this, d += 105, 200);
         slider11.addEventListener(Event.CHANGE, onSliderChange);
-        slider12 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider12 = new Slider(Slider.HORIZONTAL, this, d += 105, 200);
         slider12.addEventListener(Event.CHANGE, onSliderChange);
-        slider13 = new Slider(Slider.HORIZONTAL, this, d+=105, 200);
+        slider13 = new Slider(Slider.HORIZONTAL, this, d += 105, 200);
         slider13.addEventListener(Event.CHANGE, onSliderChange);
 
 
@@ -189,16 +206,7 @@ public final class Main extends Sprite {
         circles = new Shape();
         addChildAt(circles, 0);
 
-        addEventListener(Event.ENTER_FRAME, onEnter);
-    }
-
-    private function onEnter(event:Event):void {
-        ll.startX = cross1.x;
-        ll.startY = cross1.y;
-        ll.endX = cross2.x;
-        ll.endY = cross2.y;
-        ll.update();
-        updateCircles();
+        addEventListener(Event.ENTER_FRAME, onFrameEnter);
     }
 
     private function onComboChange(event:Event):void {
@@ -373,6 +381,16 @@ public final class Main extends Sprite {
 
              } */
         }
+    }
+
+    private function onFrameEnter(event:Event):void {
+        debugLabel.text = "LightningPool size= " + LightningPool.getSize() + " | " + ll;
+        ll.startX = cross1.x;
+        ll.startY = cross1.y;
+        ll.endX = cross2.x;
+        ll.endY = cross2.y;
+        ll.update();
+        updateCircles();
     }
 }
 }

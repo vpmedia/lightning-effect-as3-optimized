@@ -25,6 +25,7 @@
 package {
 import com.oaxoa.fx.Lightning;
 import com.oaxoa.fx.LightningFadeType;
+import com.oaxoa.fx.LightningPool;
 
 import flash.display.BlendMode;
 import flash.display.Sprite;
@@ -32,6 +33,8 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
 import flash.geom.Point;
+import flash.text.TextField;
+import flash.text.TextFormat;
 
 import net.hires.debug.Stats;
 
@@ -56,16 +59,32 @@ public final class Main extends Sprite {
 
     private var p:Point;
 
+    private var debugLabel:TextField;
+
     public function Main() {
         addEventListener(Event.ADDED_TO_STAGE, onAdded);
     }
 
     private function onAdded(event:Event):void {
         removeEventListener(Event.ADDED_TO_STAGE, onAdded);
+        // debug label
+        const textFormat:TextFormat = new TextFormat("Arial", 10, 0xFFFFFF);
+        debugLabel = new TextField();
+        addChild(debugLabel);
+        debugLabel.width = 800;
+        debugLabel.height = 20;
+        debugLabel.y = 580;
+        debugLabel.embedFonts = false;
+        debugLabel.multiline = false;
+        debugLabel.selectable = false;
+        debugLabel.defaultTextFormat = textFormat;
+        debugLabel.text = "Initializing...";
+        debugLabel.setTextFormat(textFormat);
         // stats
         var stats:Stats = new Stats()
         addChild(stats);
         stats.x = stage.stageWidth - stats.width;
+
         // ball
         ball = new Sprite();
         ball.useHandCursor = ball.buttonMode = true;
@@ -123,7 +142,7 @@ public final class Main extends Sprite {
     }
 
     private function onFrameEnter(event:Event):void {
-
+        debugLabel.text = "LightningPool size= " + LightningPool.getSize() + " | " + ll;
         var rnd:Number = Math.random();
         if (rnd < .05) randomizePoint();
         var dx:Number = CX - ball.x;
