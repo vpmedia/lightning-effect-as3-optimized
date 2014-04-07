@@ -1,2 +1,11 @@
+notifications:
+    email: false
+
 language: objective-c
-script: gradle
+
+before_install:
+    - brew update
+    - brew install gradle
+    
+script:
+    - gradle
