@@ -10,3 +10,9 @@ before_install:
     
 script:
     - gradle build
+    
+after_failure:
+    - tail brew-adobe-air-sdk.log
+
+after_script:
+    - ls
