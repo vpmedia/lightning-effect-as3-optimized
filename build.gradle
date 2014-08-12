@@ -174,7 +174,7 @@ task analyze << {
     reportDir.mkdirs()
     ant.taskdef(name: 'flexPmd', classname: 'com.adobe.ac.pmd.ant.FlexPmdAntTask', classpath: configurations.test.asPath)
     ant.taskdef(name: 'flexCpd', classname: 'com.adobe.ac.cpd.ant.FlexCpdAntTask', classpath: configurations.test.asPath)
-    ant.flexPmd(sourceDirectory: 'src/main/actionscript/hu/', outputDirectory: reportDir )
+    ant.flexPmd(sourceDirectory: 'src/main/actionscript/', outputDirectory: reportDir )
 }
         
 task document << { 
