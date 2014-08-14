@@ -111,6 +111,8 @@ def reportDir = new File(projectDir, '/build/reports')
 def tempDir = new File(projectDir, '/temp')
 tempDir.mkdirs()
 def tempDirPath = tempDir.absolutePath
+def srcDir = new File(projectDir, '/src/main/actionscript')
+def testDir = new File(projectDir, '/src/test/actionscript')
 
 //----------------------------------
 //  Tasks
@@ -137,12 +139,12 @@ task compile(type: JavaExec) {
     main = "com.adobe.flash.compiler.clients.COMPC"
     classpath = files("${AIR_HOME}/lib/compiler.jar")
     workingDir = "${projectDir}"
-    def argsList = [
-                '-directory=false',
-                '-debug=true',
-                '-include-sources="src/main/actionscript"',
-                '-output="build/Main.swc"'            
-            ]
+    def argsList = []
+    argsList.push('-directory=false')
+    argsList.push('-debug=true')
+    def includeSources = '-include-sources=' + srcDir
+    argsList.push(includeSources)
+    argsList.push('-output="build/Main.swc"');
     def airConfig = "${AIR_HOME}" + '/frameworks/air-config.xml'
     def loadAirConfig = '-load-config+='+"${airConfig}";
     argsList.push(loadAirConfig)
@@ -153,12 +155,12 @@ task test << {
     if (reportDir.isDirectory()) {
         delete("${reportDir}")
     }
-    if(file('src/test/actionscript').isDirectory()) {
+    if(testDir.isDirectory()) {
         reportDir.mkdirs()
         ant.taskdef(resource: 'flexUnitTasks.tasks', classpath: configurations.test.asPath) 
         ant.flexunit(workingDir:'bin',toDir:'build/reports',haltonfailure:'false',verbose:'true',player:'flash',headless:'false',localTrusted:'true') {
-            source(dir: 'src/main/actionscript')
-            testSource(dir: 'src/test/actionscript') {
+            source(dir: srcDir)
+            testSource(dir: testDir) {
                include(name: '**/*Test.as')
             }
             library(dir: 'bin')
@@ -174,14 +176,14 @@ task analyze << {
     reportDir.mkdirs()
     ant.taskdef(name: 'flexPmd', classname: 'com.adobe.ac.pmd.ant.FlexPmdAntTask', classpath: configurations.test.asPath)
     ant.taskdef(name: 'flexCpd', classname: 'com.adobe.ac.cpd.ant.FlexCpdAntTask', classpath: configurations.test.asPath)
-    ant.flexPmd(sourceDirectory: 'src/main/actionscript/', outputDirectory: reportDir )
+    ant.flexPmd(sourceDirectory: "${srcDir}", outputDirectory: reportDir )
 }
         
 task document << { 
     ant.taskdef(resource: 'flexTasks.tasks', classpath: "${FLEX_HOME}/ant/lib/flexTasks.jar")
     ant.asdoc(output: 'build/docs', lenient: true) {
-        'doc-sources'('src/main/actionscript')
-        'compiler.source-path'('src/main/actionscript')
+        'doc-sources'("${srcDir}")
+        'compiler.source-path'("${srcDir}")
         'external-library-path'(dir: "${AIR_HOME}/frameworks/libs/air", append: true) {
             'include'(name: '*.swc')
         }
